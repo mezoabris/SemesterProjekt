@@ -26,24 +26,24 @@ public class Main {
 
             // Register handlers with their routes
             server.createContext("/api/users/register", new RegisterHandler());
-            System.out.println("✅ register handler successfully!");
+            System.out.println(" register handler successful!");
             server.createContext("/api/users/login", new LoginHandler());
-            System.out.println("✅ login handler successfully!");
+            System.out.println(" login handler successful!");
             server.createContext("/api/users", new UserHandler(userService));
-            System.out.println("✅ user handler successfully!");
+            System.out.println(" user handler successful!");
             server.createContext("/api/media", new MediaHandler());
-            System.out.println("✅ media handler successfully!");
+            System.out.println(" media handler successful!");
             server.createContext("/api/ratings", new RatingHandler());
-            System.out.println("✅ ratings handler successfully!");
+            System.out.println(" ratings handler successful!");
             server.createContext("/api/recommendations", new RecommendationHandler());
-            System.out.println("✅ recommendation handler successfully!");
+            System.out.println(" recommendation handler successful!");
 
             // Start server
             server.setExecutor(null);
             server.start();
 
             System.out.println("✅ Server started on http://localhost:8080");
-            System.out.println("📍 Available endpoints:");
+            System.out.println("Available endpoints:");
             System.out.println("   POST /api/auth/register");
             System.out.println("   POST /api/auth/login");
             System.out.println("   GET  /api/users/{username}/profile");

@@ -1,7 +1,8 @@
 package service;
 import dataaccess.UserDAO;
+import datatransfer.UserProfileResponse;
 import models.User;
-import hashing.PasswordHasher;
+import helpers.PasswordHasher;
 
 import java.sql.SQLDataException;
 import java.sql.SQLException;
@@ -16,22 +17,11 @@ public class UserService {
         userList = userDAO.getUsers();
         return userList;
     }
-
-    public User editUserData(User user, String columnName, String newValue) throws SQLException {
-        List<String> allowedColumns = List.of("vorname", "nachname", "email", "password_hash");
-        if(!allowedColumns.contains(columnName)) {
-            throw new SQLDataException("Invalid column name");
-        }
-        if(columnName.equals("password_hash")) {
-            newValue = passwordHasher.hashPassword(newValue);
-        }
-        user = userDAO.editUser(user, columnName, newValue);
-        switch (columnName) {
-            case "vorname": user.setVorname(newValue); break;
-            case "nachname": user.setNachname(newValue); break;
-            case "email": user.setEmail(newValue); break;
-            case "password": user.setPassword(newValue); break;
-        }
+    public User findUserProfile(int userID) throws SQLException {
+        User user = new  User();
+        user = userDAO.findByUserID(userID);
         return user;
+
     }
+
 }

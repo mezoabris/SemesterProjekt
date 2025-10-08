@@ -1,7 +1,6 @@
 package dataaccess;
 import config.DatabaseConfig;
 import models.User;
-import hashing.PasswordHasher;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,44 +10,74 @@ public class UserDAO {
 
 
     public User create(User user) throws SQLException {
-        String sql = "INSERT INTO users (vorname, nachname, username, password) VALUES (?, ?, ?, ?, ?) RETURNING username, created_at";
-
-
-
+        String sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
         try (Connection con = DatabaseConfig.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setString(1, user.getVorname());
-            stmt.setString(2, user.getNachname());
-            stmt.setString(3, user.getUserName());
-            stmt.setString(4, user.getEmail());
-            stmt.setString(5, user.getPassword());
 
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                user.setCreatedAt(rs.getTimestamp("created_at"));
-                return user;
-            }
+            stmt.setString(1, user.getUserName());
+            stmt.setString(2, user.getPassword());
+
+            int affected = stmt.executeUpdate();
+            if (affected == 0) throw new SQLException("Insert failed");
+            return user;
 
         } catch (SQLException e) {
             throw new SQLDataException(e.getMessage());
         }
-        return user;
+
+    }
+    public User findByUsername(String username) throws SQLException {
+        String sql = "SELECT * FROM users WHERE username = ?";
+        try (Connection con = DatabaseConfig.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)){
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                User user = new User();
+                user.setUsername(rs.getString("username"));
+                user.setPassword(rs.getString("password_hash"));
+                user.setToken(rs.getString("token"));
+                return user;
+            }
+            return null;
+
+        }catch (SQLException e){
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+    public User findByUserID(int userID) throws SQLException {
+        String sql = "SELECT * FROM users WHERE id = ?";
+        try (Connection con = DatabaseConfig.getConnection();
+            PreparedStatement stmt = con.prepareStatement(sql)){
+            stmt.setInt(1, userID);
+
+            try (ResultSet rs = stmt.executeQuery()) {  // ← Execute AFTER setting parameter
+                if (rs.next()) {
+                    User user = new User();
+                    user.setUsername(rs.getString("username"));
+                    user.setPassword(rs.getString("password_hash"));
+                    user.setToken(rs.getString("token"));
+                    return user;
+                }
+                return null;
+            }
+
+        }catch (SQLException e){
+            throw new SQLDataException(e.getMessage());
+        }
     }
 
     public List<User> getUsers() throws SQLException {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT vorname, nachname, username, email, password_hash FROM users";
+        String sql = "SELECT username, password_hash FROM users";
         try (Connection con = DatabaseConfig.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
              ResultSet rs = stmt.executeQuery();
              while(rs.next()) {
-                 String vorname = rs.getString("vorname");
-                 String nachname = rs.getString("nachname");
+
                  String username = rs.getString("username");
-                 String email = rs.getString("email");
                  String passwordHash = rs.getString("password_hash");
-                 User user = new User(vorname, nachname, username,email);
-                 user.setPassword(passwordHash);
+                 User user = new User(username, passwordHash);
                  users.add(user);
              }
         }catch (SQLException e){
@@ -72,5 +101,20 @@ public class UserDAO {
         return user;
     }
 
+
+    public void updateToken(String username, String token) {
+        String sql =  "UPDATE users SET token = ? WHERE username = ?";
+        try(Connection conn = DatabaseConfig.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, token);
+            stmt.setString(2, username);
+            int affected = stmt.executeUpdate(); // <-- use executeUpdate
+            if (affected == 0) {
+                throw new SQLException("No user found to update token for username: " + username);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
 

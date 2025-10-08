@@ -1,4 +1,4 @@
-package hashing;
+package helpers;
 import com.password4j.BcryptFunction;
 import com.password4j.Hash;
 import com.password4j.Password;
