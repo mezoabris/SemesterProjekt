@@ -7,7 +7,9 @@ import java.io.IOException;
 
 public class MediaHandler implements HttpHandler {
     @Override
-    public void handle(HttpExchange exchange) throws IOException {}
+    public void handle(HttpExchange exchange) throws IOException {
+
+    }
     /*
     TODO createMediaEntry(MediaRequest req) POST
     TODO deleteMediaEntry() DEL

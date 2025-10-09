@@ -1,12 +1,16 @@
 package helpers;
 
 import com.sun.net.httpserver.HttpExchange;
+import service.AuthService;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 public class TokenHelper {
+    static AuthService authService =  new AuthService();
 
 
     public static String generateToken(String username) {
@@ -22,11 +26,19 @@ public class TokenHelper {
         }
         return null;
     }
-    public static boolean isValidToken(String token) {
-        if (token == null || !token.endsWith("-mrpToken")) {
-            return false;
+    public static boolean isValidToken(HttpExchange exchange, int userID) throws IOException {
+        String tokenSent = TokenHelper.extractToken(exchange);
+        try{
+            boolean tokenValid = authService.isTokenValid(userID, tokenSent);
+            if (!tokenValid) {
+                HttpHelper.sendJSONResponse(exchange, 401, "Invalid token");
+                return false;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        return token.endsWith("-mrpToken") && getUserName(token) != null;
+        return true;
+
     }
     public static String extractToken(HttpExchange exchange) {
 
