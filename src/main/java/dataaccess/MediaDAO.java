@@ -4,18 +4,20 @@ import config.DatabaseConfig;
 import datatransfer.MediaRequest;
 import datatransfer.MediaResponse;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class MediaDAO {
-    public MediaResponse createMedia(MediaRequest media){
-        int status;
-        String message;
-        MediaResponse mediaResponse = new MediaResponse();
+
+
+    public boolean createMedia(MediaRequest media) throws SQLException {
         String sql = "INSERT INTO media_entries(title, description, media_type, release_year, genre, age_restriction, creator) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try(Connection conn = DatabaseConfig.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setString(1, media.getTitle());
             stmt.setString(2, media.getDescription());
             stmt.setString(3, media.getMediaType());
@@ -23,23 +25,61 @@ public class MediaDAO {
             stmt.setArray(5, conn.createArrayOf("text", media.getGenres().toArray()));
             stmt.setInt(6, media.getAgeRestriction());
             stmt.setString(7, media.getCreator());
-            int affected = stmt.executeUpdate();
 
-            if (affected == 0){
-                throw new SQLException("Insert failed");
-            }else{
-                status = 200;
-                message = "Media created";
-            }
-            mediaResponse.setMessage(message);
-            mediaResponse.setStatus(status);
-            return mediaResponse;
+            return stmt.executeUpdate() > 0;
+        }
+    }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+    private MediaRequest mapResultSetToMediaRequest(ResultSet rs) throws SQLException {
+        MediaRequest media = new MediaRequest();
+        media.setTitle(rs.getString("title"));
+        media.setDescription(rs.getString("description"));
+        media.setMediaType(rs.getString("media_type"));
+        media.setReleaseYear(rs.getInt("release_year"));
+
+        Array sqlArray = rs.getArray("genre");
+        if (sqlArray != null) {
+            String[] genreArray = (String[]) sqlArray.getArray();
+            media.setGenres(Arrays.asList(genreArray));
+        } else {
+            media.setGenres(Collections.emptyList());
         }
 
+        media.setAgeRestriction(rs.getInt("age_restriction"));
+        media.setCreator(rs.getString("creator"));
 
+        return media;
+    }
 
+    public MediaRequest findById(Integer mediaID) throws SQLException {
+        String sql = "SELECT * FROM media_entries WHERE id = ?";
+        try (Connection con = DatabaseConfig.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setInt(1, mediaID);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToMediaRequest(rs);
+            } else {
+                return null;
+            }
+        }
+    }
+
+    public List<MediaRequest> findAll() throws SQLException {
+        String sql = "SELECT * FROM media_entries";
+        List<MediaRequest> results = new ArrayList<>();
+
+        try (Connection con = DatabaseConfig.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                results.add(mapResultSetToMediaRequest(rs));
+            }
+        }
+
+        return results;
     }
 }

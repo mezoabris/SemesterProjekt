@@ -32,6 +32,8 @@ public class Main {
             server.createContext("/api/users", new UserHandler(userService));
             System.out.println(" user handler successful!");
             server.createContext("/api/media", new MediaHandler());
+
+
             System.out.println(" media handler successful!");
             server.createContext("/api/ratings", new RatingHandler());
             System.out.println(" ratings handler successful!");

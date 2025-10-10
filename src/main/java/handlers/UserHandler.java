@@ -41,7 +41,11 @@ public class UserHandler implements HttpHandler {
 
         this.userID = Integer.parseInt(segments[segments.length - 2]);
 
-        if(TokenHelper.isValidToken(exchange, userID)){
+        User user = TokenHelper.requireValidToken(exchange);
+        if (user == null) return;
+
+        if(user.getUserID() != this.userID){
+            HttpHelper.sendJSONResponse(exchange, 403, "Forbidden");
             return;
         }
 

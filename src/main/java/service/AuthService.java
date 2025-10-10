@@ -26,8 +26,8 @@ public class AuthService {
 
         User createdUser =  userDAO.create(newUser);
         if(createdUser != null) {
-            String token = TokenHelper.generateToken(createdUser.getUserName());
-            userDAO.updateToken(createdUser.getUserName(), token);
+            String token = TokenHelper.generateToken(createdUser.getUsername());
+            userDAO.updateToken(createdUser.getUsername(), token);
             return token;
         }
 
@@ -39,8 +39,8 @@ public class AuthService {
         if(existingUser == null) {
             throw new SQLException("User not found");
         }
-        String token = TokenHelper.generateToken(existingUser.getUserName());
-        userDAO.updateToken(existingUser.getUserName(), token);
+        String token = TokenHelper.generateToken(existingUser.getUsername());
+        userDAO.updateToken(existingUser.getUsername(), token);
         existingUser.setToken(token);
         return existingUser;
     }
@@ -48,5 +48,14 @@ public class AuthService {
         User user = userDAO.findByUserID(userID);
         return Objects.equals(token, user.getToken());
 
+    }
+    public User findUserByToken(String token) throws SQLException {
+        User user;
+        try {
+            user = userDAO.findByToken(token);
+        } catch (SQLException e) {
+            throw new SQLException("Invalid token");
+        }
+        return user;
     }
 }

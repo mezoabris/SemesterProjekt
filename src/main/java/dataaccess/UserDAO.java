@@ -14,7 +14,7 @@ public class UserDAO {
         try (Connection con = DatabaseConfig.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
-            stmt.setString(1, user.getUserName());
+            stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPassword());
 
             int affected = stmt.executeUpdate();
@@ -45,6 +45,26 @@ public class UserDAO {
             throw new SQLDataException(e.getMessage());
         }
     }
+    public User findByToken(String token) throws SQLException {
+        String sql = "SELECT * FROM users WHERE token = ?";
+        try (Connection con = DatabaseConfig.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)){
+            stmt.setString(1, token);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                User user = new User();
+                user.setUsername(rs.getString("username"));
+                user.setPassword(rs.getString("password_hash"));
+                user.setToken(rs.getString("token"));
+                return user;
+            }
+            return null;
+
+        }catch (SQLException e){
+            throw new SQLDataException(e.getMessage());
+        }
+    }
+
     public User findByUserID(int userID) throws SQLException {
         String sql = "SELECT * FROM users WHERE id = ?";
         try (Connection con = DatabaseConfig.getConnection();
@@ -54,6 +74,7 @@ public class UserDAO {
             try (ResultSet rs = stmt.executeQuery()) {  // ← Execute AFTER setting parameter
                 if (rs.next()) {
                     User user = new User();
+                    user.setUserID(rs.getInt("id"));
                     user.setUsername(rs.getString("username"));
                     user.setPassword(rs.getString("password_hash"));
                     user.setToken(rs.getString("token"));
@@ -90,10 +111,10 @@ public class UserDAO {
         try(Connection con = DatabaseConfig.getConnection();
             PreparedStatement stmt = con.prepareStatement(sql);){
             stmt.setString(1, newValue);
-            stmt.setString(2, user.getUserName());
+            stmt.setString(2, user.getUsername());
             int affected = stmt.executeUpdate();
             if (affected == 0) {
-                throw new SQLException("No user found with username: " + user.getUserName());
+                throw new SQLException("No user found with username: " + user.getUsername());
             }
         }catch (SQLException e){
             throw new SQLDataException(e.getMessage());
