@@ -1,17 +1,75 @@
 package service;
 
+import com.sun.net.httpserver.HttpExchange;
 import dataaccess.MediaDAO;
 import datatransfer.MediaRequest;
 import datatransfer.MediaResponse;
+import helpers.HttpHelper;
 
 import java.security.InvalidParameterException;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class MediaService {
     MediaDAO mediaDAO = new MediaDAO();
+
+    public MediaResponse getMedia(HttpExchange exchange, String[] segments, Map<String, String> params) throws SQLException {
+        MediaResponse response = new MediaResponse();
+        if(!params.isEmpty()){
+            response.setStatus(0);
+            response.setMessage("Invalid parameters");
+
+        }
+        Integer mediaID = extractMediaIDFromPath(segments);
+        if(mediaID != null) {
+            MediaRequest media = mediaDAO.findById(mediaID);
+            if (media != null) {
+                response.setRequests(List.of(media));
+                response.setStatus(200);
+                response.setMessage("Media found");
+            }else{
+                response.setStatus(404);
+                response.setMessage("No media found");
+            }
+
+        }else{
+            List<MediaRequest> allMedia = mediaDAO.findAll();
+            response.setRequests(allMedia);
+            response.setStatus(200);
+            response.setMessage(allMedia.isEmpty() ? "No media found" : "Media found");
+        }
+        return response;
+    }
+    public MediaResponse upsertMedia(MediaRequest request, String[] segments) throws SQLException {
+        validateRequest(request);
+        Integer mediaID = extractMediaID(segments);
+
+        MediaResponse response;
+        if (mediaID == null) {
+            response = createMedia(request);
+        } else {
+            response = updateMediaByID(mediaID, request);
+        }
+        return response;
+
+    }
+
+    public MediaResponse deleteMediaByID(HttpExchange exchange, String[] segments) {
+        if (segments.length == 4) {
+            Integer mediaID = extractMediaID(segments);
+            return mediaDAO.deleteMedia(mediaID);
+        }
+        MediaResponse response = new MediaResponse();
+        response.setStatus(400);
+        response.setMessage("Invalid request");
+        return response;
+
+    }
+
     public MediaResponse createMedia(MediaRequest request) {
         validateRequest(request);
         MediaResponse response = new MediaResponse();
@@ -31,53 +89,14 @@ public class MediaService {
         return response;
     }
 
-    public MediaResponse getMediaByID(Integer mediaID) {
-        MediaResponse response = new MediaResponse();
-        try {
-            MediaRequest media = mediaDAO.findById(mediaID);
-            if (media != null) {
-                response.setRequests(List.of(media));
-                response.setStatus(200);
-                response.setMessage("Media found");
-            } else {
-                response.setStatus(404);
-                response.setMessage("No media found");
-            }
-        } catch (SQLException e) {
-            response.setStatus(400);
-            response.setMessage("Database error: " + e.getMessage());
-        }
-        return response;
-    }
 
-    public MediaResponse getAllMedia() {
-        MediaResponse response = new MediaResponse();
-        try {
-            List<MediaRequest> mediaList = mediaDAO.findAll();
-            response.setRequests(mediaList);
-            response.setStatus(200);
-            response.setMessage(mediaList.isEmpty() ? "No media found" : "Media found");
-        } catch (SQLException e) {
-            response.setStatus(400);
-            response.setMessage("Database error: " + e.getMessage());
-        }
-        return response;
-    }
     public MediaResponse updateMediaByID(Integer mediaID, MediaRequest request) throws SQLException {
         validateRequest(request);
-        MediaResponse response =mediaDAO.updateMedia(mediaID, request);
+        MediaResponse response = mediaDAO.updateMedia(mediaID, request);
         return response;
     }
-    public MediaResponse deleteMediaByID(Integer mediaID) {
-        MediaResponse response = mediaDAO.deleteMedia(mediaID);
-        return response;
 
-    }
 
-    public List<MediaResponse> searchMedia(String title, List<String> genres, String mediaType, Integer releaseYear, Integer ageRestriction, Integer rating, String sortBy) {
-        List<MediaResponse> mediaResponses = new ArrayList<>();
-        return mediaResponses;
-    }
     private void validateRequest(MediaRequest request) {
         if (isNullOrBlank(request.getCreator(), request.getTitle(),
                 request.getDescription(), request.getMediaType())) {
@@ -101,12 +120,54 @@ public class MediaService {
 
 
     }
+
     private boolean isNullOrBlank(String... values) {
         for (String v : values) {
             if (v == null || v.isBlank()) return true;
         }
         return false;
     }
+    private Integer extractMediaID(String[] segments) {
+        if (segments == null || segments.length <= 3) {
+            return null; // no ID provided → treat as create
+        }
+        String idStr = segments[3];
+        if (idStr == null || idStr.isEmpty()) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(idStr); // prefer valueOf over parseInt for Integer
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Media ID must be a number"); // or throw if you consider malformed ID an error
+        }
+    }
+    private Integer extractMediaIDFromPath(String[] segments) {
+        if (segments == null || segments.length == 0) {
+            return null;
+        }
+        String last = segments[segments.length - 1];
+        try {
+            return Integer.valueOf(last);
+        } catch (NumberFormatException e) {
+            return null; // Not an ID → treat as collection
+        }
+    }
 
+    private List<String> parseGenres(String genreParam) {
+        if (genreParam == null || genreParam.isBlank()) return new ArrayList<>();
+        return Arrays.stream(genreParam.split(","))
+                .map(String::trim)
+                .toList();
+    }
 
+    private static Integer parseIntSafe(Map<String, String> params, String key) {
+        try {
+            return params.containsKey(key) ? Integer.parseInt(params.get(key)) : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }
+
+
+
