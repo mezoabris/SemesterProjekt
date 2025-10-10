@@ -4,6 +4,7 @@ import config.DatabaseConfig;
 import datatransfer.MediaRequest;
 import datatransfer.MediaResponse;
 
+import javax.xml.crypto.Data;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,6 +102,27 @@ public class MediaDAO {
 
 
         }
+    }
+    public MediaResponse deleteMedia(int mediaID){
+        MediaResponse response = new MediaResponse();
+        String sql = "DELETE FROM media_entries WHERE id = ?";
+        try(Connection conn = DatabaseConfig.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, mediaID);
+            int affected = stmt.executeUpdate();
+            if (affected > 0) {
+                response.setStatus(200);
+                response.setMessage("Successfully deleted media");
+            }else{
+                response.setStatus(400);
+                response.setMessage("Failed to delete media");
+            }
+
+        }catch (SQLException e){
+            response.setStatus(500);
+            response.setMessage("Failed to delete media");
+        }
+        return response;
     }
 
     public List<MediaRequest> findAll() throws SQLException {

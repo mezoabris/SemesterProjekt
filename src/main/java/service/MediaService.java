@@ -69,7 +69,7 @@ public class MediaService {
         return response;
     }
     public MediaResponse deleteMediaByID(Integer mediaID) {
-        MediaResponse response = new MediaResponse();
+        MediaResponse response = mediaDAO.deleteMedia(mediaID);
         return response;
 
     }
