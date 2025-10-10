@@ -13,6 +13,7 @@ import java.util.List;
 public class MediaService {
     MediaDAO mediaDAO = new MediaDAO();
     public MediaResponse createMedia(MediaRequest request) {
+        validateRequest(request);
         MediaResponse response = new MediaResponse();
         try {
             boolean success = mediaDAO.createMedia(request);
@@ -61,6 +62,16 @@ public class MediaService {
             response.setMessage("Database error: " + e.getMessage());
         }
         return response;
+    }
+    public MediaResponse updateMediaByID(Integer mediaID, MediaRequest request) throws SQLException {
+        validateRequest(request);
+        MediaResponse response =mediaDAO.updateMedia(mediaID, request);
+        return response;
+    }
+    public MediaResponse deleteMediaByID(Integer mediaID) {
+        MediaResponse response = new MediaResponse();
+        return response;
+
     }
 
     public List<MediaResponse> searchMedia(String title, List<String> genres, String mediaType, Integer releaseYear, Integer ageRestriction, Integer rating, String sortBy) {

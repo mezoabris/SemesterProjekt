@@ -13,116 +13,112 @@ import java.awt.geom.IllegalPathStateException;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class MediaHandler implements HttpHandler {
-    MediaService mediaService =  new MediaService();
-    @Override
+    private final MediaService mediaService =  new MediaService();
     public void handle(HttpExchange exchange) throws IOException {
         Map<String, String> params = HttpHelper.getQueryParams(exchange);
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
         String[] segments = path.split("/");
-        Integer mediaID = null;
         User user = TokenHelper.requireValidToken(exchange);
         if (user == null) return;
 
-        switch (method) {
-            case "GET":
-                if(segments.length == 4){
-                    mediaID = Integer.parseInt(segments[3]);
-                    String converted = String.valueOf(mediaID);
-                    MediaResponse response = mediaService.getMediaByID(mediaID);
-                    HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
-
-                }
-                if(segments.length == 3){
-                    MediaResponse response = mediaService.getAllMedia();
-                    HttpHelper.sendJSONResponse(exchange, response.getStatus(),  response);
-                }
-                break;
-            case "POST":
-                MediaRequest request = HttpHelper.parseRequestBody(exchange,  MediaRequest.class);
-                request.setCreator(user.getUsername());
-                try {
-                    MediaResponse response = mediaService.createMedia(request);
-                    HttpHelper.sendJSONResponse(exchange, 200, response);
-                } catch (IllegalArgumentException e){
-                    HttpHelper.sendJSONResponse(exchange, 400, e.getMessage());
-                } catch (RuntimeException e) {
-                    System.out.println(e.getMessage());
-                    HttpHelper.sendJSONResponse(exchange, 500, e.getMessage());
-                }
-
-
-            case "PUT":
-                break;
-            case "DELETE":
-                break;
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        if (segments.length == 4) { // e.g., /api/media/123
-            try {
-                mediaID = Integer.parseInt(segments[3]);
-
-            } catch (NumberFormatException e) {
-                HttpHelper.sendJSONResponse(exchange, 400, "Invalid mediaID");
-                return;
+        try {
+            switch (method) {
+                case "GET" -> handleGet(exchange, segments, params);
+                case "POST" -> handleWrite(exchange, user, null); // ✅ unified handler
+                case "PUT" -> handleWrite(exchange, user, extractMediaID(segments));
+                case "DELETE" -> handleDelete(exchange, segments);
+                default -> HttpHelper.sendJSONResponse(exchange, 405, "Method not allowed");
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            HttpHelper.sendJSONResponse(exchange, 500, "Internal server error: " + e.getMessage());
         }
-        if ("POST".equals(method) && mediaID == null) {
-            MediaRequest request = HttpHelper.parseRequestBody(exchange, MediaRequest.class);
-            request.setCreator(user.getUsername());
-            mediaService.createMedia(request);
-            HttpHelper.sendJSONResponse(exchange, 201, "Media created");
+    }
+
+
+    private void handleWrite(HttpExchange exchange, User user, Integer mediaID) throws IOException {
+        MediaRequest request = HttpHelper.parseRequestBody(exchange, MediaRequest.class);
+        request.setCreator(user.getUsername());
+        try {
+            MediaResponse response;
+            if (mediaID == null) {
+                response = mediaService.createMedia(request);
+            } else {
+                System.out.println("updating media ID: " + mediaID);
+                response = mediaService.updateMediaByID(mediaID, request);
+            }
+            HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
+        }catch (SQLException e){
+            HttpHelper.sendJSONResponse(exchange, 500, "Internal server error: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            HttpHelper.sendJSONResponse(exchange, 400, e.getMessage());
+        } catch (RuntimeException e) {
+            HttpHelper.sendJSONResponse(exchange, 500, e.getMessage());
+        }
+    }
+
+    private void handleGet(HttpExchange exchange, String[] segments, Map<String, String> params) throws IOException {
+        if (segments.length == 4) {
+            Integer mediaID = extractMediaID(segments);
+            MediaResponse response = mediaService.getMediaByID(mediaID);
+            HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
             return;
         }
-        if ("GET".equals(method) && mediaID != null) {
-            MediaResponse media = mediaService.getMediaByID(mediaID);
-            if (media == null) {
-                HttpHelper.sendJSONResponse(exchange, 404, "Media not found");
-                return;
-            }
-            HttpHelper.sendJSONResponse(exchange, 200, media);
+        if (segments.length == 3 && params.isEmpty()) {
+            MediaResponse response = mediaService.getAllMedia();
+            HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
             return;
         }
-        if("GET".equals(method) && !params.isEmpty()) {
-            String title = params.get("title");
-            String genreParam = params.get("genre");
-            List<String> genres = genreParam == null ? new ArrayList<>() :
-                    Arrays.stream(genreParam.split(","))
-                            .map(String::trim)
-                            .toList();
-            String mediaType = params.get("mediaType");
-            Integer releaseYear = parseIntSafe(params, "releaseYear");
-            Integer ageRestriction = parseIntSafe(params, "ageRestriction");
-            Integer rating = parseIntSafe(params, "rating");
-            String sortBy = params.get("sortBy");
-            List<MediaResponse> results = mediaService.searchMedia(
-                    title, genres, mediaType, releaseYear, ageRestriction, rating, sortBy
+
+        // optional: filtered GET
+        if (!params.isEmpty()) {
+            var results = mediaService.searchMedia(
+                    params.get("title"),
+                    parseGenres(params.get("genre")),
+                    params.get("mediaType"),
+                    parseIntSafe(params, "releaseYear"),
+                    parseIntSafe(params, "ageRestriction"),
+                    parseIntSafe(params, "rating"),
+                    params.get("sortBy")
             );
             HttpHelper.sendJSONResponse(exchange, 200, results);
-
+            return;
         }
 
-
+        HttpHelper.sendJSONResponse(exchange, 400, "Invalid request");
     }
+
+    private void handleDelete(HttpExchange exchange, String[] segments) throws IOException {
+        if (segments.length == 4) {
+            Integer mediaID = extractMediaID(segments);
+            MediaResponse response = mediaService.deleteMediaByID(mediaID);
+            HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
+        } else {
+            HttpHelper.sendJSONResponse(exchange, 400, "Invalid request");
+        }
+    }
+
+    private Integer extractMediaID(String[] segments) {
+        try {
+            return Integer.parseInt(segments[3]);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid media ID");
+        }
+    }
+
+    private List<String> parseGenres(String genreParam) {
+        if (genreParam == null || genreParam.isBlank()) return new ArrayList<>();
+        return Arrays.stream(genreParam.split(","))
+                .map(String::trim)
+                .toList();
+    }
+
     private static Integer parseIntSafe(Map<String, String> params, String key) {
         try {
             return params.containsKey(key) ? Integer.parseInt(params.get(key)) : null;

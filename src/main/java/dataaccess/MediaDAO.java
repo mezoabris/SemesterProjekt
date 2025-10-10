@@ -66,6 +66,42 @@ public class MediaDAO {
             }
         }
     }
+    public MediaResponse updateMedia(int mediaID,MediaRequest media) throws SQLException {
+        String title= media.getTitle();
+        String description = media.getDescription();
+        String mediaType = media.getMediaType();
+        int releaseYear = media.getReleaseYear();
+        List<String> genre = media.getGenres();
+        int ageRestriction = media.getAgeRestriction();
+        String creator = media.getCreator();
+        MediaResponse response = new MediaResponse();
+        String sql = "UPDATE media_entries SET title = ?, description = ?, " +
+                                             "media_type = ?, release_year = ?, " +
+                                             "genre = ?, age_restriction = ?, " +
+                                             "updated_at = ? WHERE  id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, title);
+            stmt.setString(2, description);
+            stmt.setString(3, mediaType);
+            stmt.setInt(4, releaseYear);
+            stmt.setArray(5, conn.createArrayOf("text", genre.toArray()));
+            stmt.setInt(6, ageRestriction);
+            stmt.setTimestamp(7, new java.sql.Timestamp(System.currentTimeMillis()));
+            stmt.setInt(8, mediaID);
+            int affected = stmt.executeUpdate();
+            if (affected > 0) {
+                response.setStatus(200);
+                response.setMessage("Successfully updated media");
+            }else{
+                response.setStatus(500);
+                response.setMessage("Failed to update media");
+            }
+            return response;
+
+
+        }
+    }
 
     public List<MediaRequest> findAll() throws SQLException {
         String sql = "SELECT * FROM media_entries";
