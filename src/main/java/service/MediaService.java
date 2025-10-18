@@ -20,8 +20,9 @@ public class MediaService {
     public MediaResponse getMedia(HttpExchange exchange, String[] segments, Map<String, String> params) throws SQLException {
         MediaResponse response = new MediaResponse();
         if(!params.isEmpty()){
-            response.setStatus(0);
+            response.setStatus(400);
             response.setMessage("Invalid parameters");
+            return response;
 
         }
         Integer mediaID = extractMediaIDFromPath(segments);

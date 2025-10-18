@@ -17,6 +17,7 @@ import java.util.*;
 public class MediaHandler implements HttpHandler {
     private final MediaService mediaService =  new MediaService();
     public void handle(HttpExchange exchange) throws IOException {
+        System.err.println("User: ");
         Map<String, String> params = HttpHelper.getQueryParams(exchange);
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
@@ -53,6 +54,7 @@ public class MediaHandler implements HttpHandler {
     }
 
     private void handleGet(HttpExchange exchange, String[] segments, Map<String, String> params) throws IOException, SQLException {
+        System.out.println(params);
         MediaResponse response = mediaService.getMedia(exchange, segments, params);
         HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
     }
