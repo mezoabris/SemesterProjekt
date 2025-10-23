@@ -3,6 +3,9 @@ FROM maven:3.9-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
+# Install inotify-tools for file watching
+RUN apt-get update && apt-get install -y inotify-tools && rm -rf /var/lib/apt/lists/*
+
 # Copy pom.xml first for better caching
 COPY pom.xml .
 RUN mvn dependency:go-offline
