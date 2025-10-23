@@ -14,7 +14,6 @@ public class Main {
         try {
             // Test database connection
             Connection conn = DatabaseConfig.getConnection();
-            System.out.println("✅ Database connected successfully!");
 
             // Create HTTP server
             HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
@@ -26,32 +25,17 @@ public class Main {
 
             // Register handlers with their routes
             server.createContext("/api/users/register", new RegisterHandler());
-            System.out.println(" register handler successful!");
             server.createContext("/api/users/login", new LoginHandler());
-            System.out.println(" login handler successful!");
             server.createContext("/api/users", new UserHandler(userService));
-            System.out.println(" user handler successful!");
             server.createContext("/api/media", new MediaHandler());
-            System.out.println(" media handler successful!");
+
+
             server.createContext("/api/ratings", new RatingHandler());
-            System.out.println(" ratings handler successful!");
             server.createContext("/api/recommendations", new RecommendationHandler());
-            System.out.println(" recommendation handler successful!");
 
             // Start server
             server.setExecutor(null);
             server.start();
-
-            System.out.println("✅ Server started on http://localhost:8080");
-            System.out.println("Available endpoints:");
-            System.out.println("   POST /api/auth/register");
-            System.out.println("   POST /api/auth/login");
-            System.out.println("   GET  /api/users/{username}/profile");
-            System.out.println("   POST /api/media");
-            System.out.println("   GET  /api/media");
-            System.out.println("   POST /api/ratings");
-            System.out.println("   GET  /api/recommendations");
-
         } catch (Exception e) {
             System.err.println("❌ Failed to start server: " + e.getMessage());
             e.printStackTrace();

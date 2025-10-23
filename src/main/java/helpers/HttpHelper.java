@@ -4,7 +4,10 @@ import com.sun.net.httpserver.HttpExchange;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HttpHelper {
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -39,6 +42,26 @@ public class HttpHelper {
         try(OutputStream os = httpExchange.getResponseBody()) {
             os.write(text.getBytes());
         }
+    }
+    public static Map<String, String> getQueryParams(HttpExchange httpExchange) {
+        Map<String, String> queryParams = new HashMap<>();
+        String queryString = httpExchange.getRequestURI().getQuery();
+        if (queryString == null) {
+            return queryParams;
+        }
+        String[] pairs = queryString.split("&");
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=",2);
+            try{
+                String key = URLDecoder.decode(keyValue[0], StandardCharsets.UTF_8);
+                String value = URLDecoder.decode(keyValue[1], StandardCharsets.UTF_8);
+                queryParams.put(key, value);
+
+            }catch(Exception e){
+                throw new RuntimeException(e);
+            }
+        }
+        return queryParams;
     }
 
 }

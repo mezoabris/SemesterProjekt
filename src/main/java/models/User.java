@@ -1,11 +1,20 @@
 package models;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.sql.Timestamp;
 
 public class User {
+    @Getter
+    @Setter
     private String username;
+    @Getter  @Setter
     private String password;
+    @Getter  @Setter
     private String token;
+    @Getter @Setter
+    private int userID;
 
     public User(){};
 
@@ -16,24 +25,9 @@ public class User {
 
 
     }
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    public String getPassword() {
-        return this.password;
-    }
-    public String getUserName() {
-        return this.username;
-    }
-    public String getToken() {
-        return this.token;
-    }
-    public void setToken(String token) {
-        this.token = token;
-    }
+
+
+
 
 
 

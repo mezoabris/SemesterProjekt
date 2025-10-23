@@ -1,6 +1,7 @@
 package helpers;
 
 import com.sun.net.httpserver.HttpExchange;
+import models.User;
 import service.AuthService;
 
 import java.io.IOException;
@@ -39,6 +40,25 @@ public class TokenHelper {
         }
         return true;
 
+    }
+    public static User getUserFromToken(String token) {
+        if (token == null || !token.endsWith("-mrpToken")) {
+            return null;
+        }
+
+        try {
+            return authService.findUserByToken(token); // DB lookup
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public static User requireValidToken(HttpExchange exchange) throws IOException {
+        String token = extractToken(exchange);
+        User user = getUserFromToken(token);
+        if (user == null) {
+            HttpHelper.sendJSONResponse(exchange, 401, "Invalid token");
+        }
+        return user;
     }
     public static String extractToken(HttpExchange exchange) {
 

@@ -3,11 +3,15 @@ package datatransfer;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 public class MediaResponse {
     @Getter @Setter
     int status;
     @Getter @Setter
     String message;
+    @Getter @Setter
+    private List<MediaRequest> requests;
 
     public MediaResponse() {
 

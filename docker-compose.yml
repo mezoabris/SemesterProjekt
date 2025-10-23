@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: semester_projekt_db
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    container_name: semester_projekt_app
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: "jdbc:postgresql://postgres:5432/mydb"
+      DB_USER: "myuser"
+      DB_PASS: "mypass"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      # Preserve Maven cache
+      - maven_cache:/root/.m2
+    command: sh -c "while true; do mvn -q compile exec:java -Dexec.mainClass='org.example.Main' & PID=$$!; inotifywait -q -r -e modify /app/src; kill $$PID 2>/dev/null; sleep 1; done"
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /app/src
+        - action: rebuild
+          path: ./pom.xml
+
+
+volumes:
+  postgres_data:
+  maven_cache:
