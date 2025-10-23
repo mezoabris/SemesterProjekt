@@ -55,13 +55,31 @@ public class MediaHandler implements HttpHandler {
 
     private void handleGet(HttpExchange exchange, String[] segments, Map<String, String> params) throws IOException, SQLException {
         System.out.println(params);
-        MediaResponse response = mediaService.getMedia(exchange, segments, params);
+        Integer mediaID = extractMediaIDFromPath(segments);
+        MediaResponse response = mediaService.getMedia(mediaID, params);
         HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
     }
 
     private void handleDelete(HttpExchange exchange, String[] segments) throws IOException {
-            MediaResponse response = mediaService.deleteMediaByID(exchange, segments);
-            HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
+        Integer mediaID = extractMediaIDFromPath(segments);
+        if (mediaID == null) {
+            HttpHelper.sendJSONResponse(exchange, 400, "Media ID is required");
+            return;
+        }
+        MediaResponse response = mediaService.deleteMediaByID(mediaID);
+        HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
+    }
+
+    private Integer extractMediaIDFromPath(String[] segments) {
+        if (segments == null || segments.length < 4) {
+            return null;
+        }
+        String last = segments[segments.length - 1];
+        try {
+            return Integer.valueOf(last);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
 }

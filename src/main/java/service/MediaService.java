@@ -1,10 +1,8 @@
 package service;
 
-import com.sun.net.httpserver.HttpExchange;
 import dataaccess.MediaDAO;
 import datatransfer.MediaRequest;
 import datatransfer.MediaResponse;
-import helpers.HttpHelper;
 
 import java.security.InvalidParameterException;
 import java.sql.SQLException;
@@ -17,27 +15,37 @@ import java.util.Map;
 public class MediaService {
     MediaDAO mediaDAO = new MediaDAO();
 
-    public MediaResponse getMedia(HttpExchange exchange, String[] segments, Map<String, String> params) throws SQLException {
+    public MediaResponse getMedia(Integer mediaID, Map<String, String> params) throws SQLException {
         MediaResponse response = new MediaResponse();
-        if(!params.isEmpty()){
-            response.setStatus(400);
-            response.setMessage("Invalid parameters");
-            return response;
 
+        // Handle filtering by params (future implementation)
+        if(!params.isEmpty()){
+            List<MediaRequest> filteredMedia =  mediaDAO.findByFilter(params);
+            if(filteredMedia.isEmpty()){
+                response.setStatus(200);
+                response.setMessage("No media found");
+            }
+            else{
+                response.setStatus(200);
+                response.setMessage("Media found");
+                response.setRequests(filteredMedia);
+            }
+            return response;
         }
-        Integer mediaID = extractMediaIDFromPath(segments);
+
+        // Get specific media by ID
         if(mediaID != null) {
             MediaRequest media = mediaDAO.findById(mediaID);
             if (media != null) {
                 response.setRequests(List.of(media));
                 response.setStatus(200);
                 response.setMessage("Media found");
-            }else{
+            } else {
                 response.setStatus(404);
                 response.setMessage("No media found");
             }
-
-        }else{
+        } else {
+            // Get all media
             List<MediaRequest> allMedia = mediaDAO.findAll();
             response.setRequests(allMedia);
             response.setStatus(200);
@@ -59,16 +67,8 @@ public class MediaService {
 
     }
 
-    public MediaResponse deleteMediaByID(HttpExchange exchange, String[] segments) {
-        if (segments.length == 4) {
-            Integer mediaID = extractMediaID(segments);
-            return mediaDAO.deleteMedia(mediaID);
-        }
-        MediaResponse response = new MediaResponse();
-        response.setStatus(400);
-        response.setMessage("Invalid request");
-        return response;
-
+    public MediaResponse deleteMediaByID(Integer mediaID) {
+        return mediaDAO.deleteMedia(mediaID);
     }
 
     public MediaResponse createMedia(MediaRequest request) {
@@ -142,18 +142,6 @@ public class MediaService {
             throw new IllegalArgumentException("Media ID must be a number"); // or throw if you consider malformed ID an error
         }
     }
-    private Integer extractMediaIDFromPath(String[] segments) {
-        if (segments == null || segments.length == 0) {
-            return null;
-        }
-        String last = segments[segments.length - 1];
-        try {
-            return Integer.valueOf(last);
-        } catch (NumberFormatException e) {
-            return null; // Not an ID → treat as collection
-        }
-    }
-
     private List<String> parseGenres(String genreParam) {
         if (genreParam == null || genreParam.isBlank()) return new ArrayList<>();
         return Arrays.stream(genreParam.split(","))

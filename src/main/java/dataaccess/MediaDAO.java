@@ -6,10 +6,7 @@ import datatransfer.MediaResponse;
 
 import javax.xml.crypto.Data;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class MediaDAO {
 
@@ -88,7 +85,7 @@ public class MediaDAO {
             stmt.setInt(4, releaseYear);
             stmt.setArray(5, conn.createArrayOf("text", genre.toArray()));
             stmt.setInt(6, ageRestriction);
-            stmt.setTimestamp(7, new java.sql.Timestamp(System.currentTimeMillis()));
+            stmt.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
             stmt.setInt(8, mediaID);
             int affected = stmt.executeUpdate();
             if (affected > 0) {
@@ -139,5 +136,97 @@ public class MediaDAO {
         }
 
         return results;
+    }
+    public List<MediaRequest> findByFilter(Map<String, String> params) throws SQLException {
+        List<Object> paramValues = new ArrayList<>();
+        StringBuilder sql = makeQueryHelper(params, paramValues);
+
+        try (Connection con = DatabaseConfig.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+            for (int j = 0; j < paramValues.size(); j++) {
+                Object val = paramValues.get(j);
+                switch (val) {
+                    case Integer integer -> stmt.setInt(j + 1, integer);
+                    case String[] strings -> stmt.setArray(j + 1, con.createArrayOf("text", strings));
+                    case String s -> stmt.setString(j + 1, s);
+                    case null, default -> stmt.setObject(j + 1, val);
+                }
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            List<MediaRequest> results = new ArrayList<>();
+            while (rs.next()) {
+                results.add(mapResultSetToMediaRequest(rs));
+            }
+            return results;
+        }
+
+    }
+    public StringBuilder makeQueryHelper(Map<String, String> params, List<Object> paramValues) throws SQLException {
+        Integer ratingFilter = null;
+
+
+        StringBuilder sql = new StringBuilder(
+                "SELECT m.*, AVG(r.stars) AS avg_rating " +
+                        "FROM media_entries m " +
+                        "LEFT JOIN ratings r ON m.id = r.media_id " +
+                        "WHERE "
+        );
+
+        int i = 0;
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (key.equals("sortBy")) {
+                continue;
+            }
+            if(key.equals("rating")) {
+                ratingFilter = Integer.parseInt(value);
+                continue;
+            }
+            if (i > 0) sql.append(" AND ");
+
+            switch (key) {
+                case "title":
+                    sql.append("m.title ILIKE ?");
+                    paramValues.add("%" + value + "%");
+                    break;
+                case "genre":
+                    sql.append("m.genre @> ?");
+                    paramValues.add(new String[]{value});
+                    break;
+                case "media_type":
+                    sql.append("m.media_type = ?");
+                    paramValues.add(value);
+                    break;
+                case "release_year":
+                    sql.append("release_year >= ?");
+                    paramValues.add(Integer.parseInt(value));
+                    break;
+                case "age_restriction":
+                    sql.append("age_restriction >= ?");
+                    paramValues.add(value);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown filter: " + key);
+            }
+            i++;
+        }
+        sql.append(" GROUP BY m.id");
+        if(ratingFilter != null) {
+            sql.append(" HAVING AVG(r.stars) >= ? ");
+            paramValues.add(ratingFilter);
+        }
+
+        if (params.containsKey("sortBy")) {
+            String sortColumn = params.get("sortBy");
+            List<String> allowedSort = List.of("title", "release_year", "media_type", "age_restriction");
+            if(!allowedSort.contains(sortColumn)) {
+                throw new IllegalArgumentException("Invalid sort column: " + sortColumn);
+            }
+            sql.append(" ORDER BY ").append(sortColumn);
+        }
+        return sql;
+
     }
 }
