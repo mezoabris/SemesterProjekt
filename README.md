@@ -92,28 +92,37 @@ For code changes, the application automatically recompiles when files are modifi
    mvn exec:java
    ```
 
-## API Endpoints
+## API Documentation
 
-### Authentication
+Full API documentation is available in the `specification/` directory:
+
+- **OpenAPI Specification**: `specification/openapi-mrp.yaml` - Complete API spec (view with Swagger Editor)
+- **Postman Collection**: `specification/MRP_Postman_Collection.json` - Import into Postman for testing
+- **Full Specification**: `specification/MRP_Specification.pdf` - Complete project specification
+
+### Quick Reference
+
+#### Authentication
 - `POST /api/users/register` - Register a new user
 - `POST /api/users/login` - Login and receive JWT token
 
-### User Management
+#### User Management
 - `GET /api/users` - Get user profile
 - `PUT /api/users` - Update user profile
 - `DELETE /api/users` - Delete user account
 
-### Media
-- `GET /api/media` - List media entries
+#### Media
+- `GET /api/media` - List media entries (supports filters)
+- `GET /api/media/{id}` - Get specific media entry
 - `POST /api/media` - Create new media entry
-- `PUT /api/media` - Update media entry
-- `DELETE /api/media` - Delete media entry
+- `PUT /api/media/{id}` - Update media entry
+- `DELETE /api/media/{id}` - Delete media entry
 
-### Ratings
+#### Ratings
 - `POST /api/ratings` - Rate or like media
 - `GET /api/ratings` - Get ratings
 
-### Recommendations
+#### Recommendations
 - `GET /api/recommendations` - Get personalized recommendations
 
 ## Project Structure
