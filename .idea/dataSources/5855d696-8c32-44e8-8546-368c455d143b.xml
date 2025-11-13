@@ -4,7 +4,7 @@
     <root id="1">
       <DateStyle>mdy</DateStyle>
       <ServerVersion>16.10</ServerVersion>
-      <StartupTime>1759997880</StartupTime>
+      <StartupTime>1762712318</StartupTime>
       <TimeZones>true ACDT
 true ACSST
 false ACST
@@ -4158,8 +4158,8 @@ true posixrules
     </table>
     <table id="269" parent="264" name="users">
       <DetailsLevel>2</DetailsLevel>
-      <ObjectId>16389</ObjectId>
-      <StateNumber>769</StateNumber>
+      <ObjectId>16416</ObjectId>
+      <StateNumber>777</StateNumber>
       <AccessMethodId>2</AccessMethodId>
       <OwnerName>myuser</OwnerName>
     </table>
@@ -4169,7 +4169,6 @@ true posixrules
       <Position>1</Position>
       <StateNumber>754</StateNumber>
       <StoredType>integer|0s</StoredType>
-      <SequenceId>16464</SequenceId>
       <TypeId>23</TypeId>
     </column>
     <column id="271" parent="265" name="media_id">
@@ -4272,7 +4271,7 @@ default</CollationNames>
       <Position>1</Position>
       <StateNumber>748</StateNumber>
       <StoredType>integer|0s</StoredType>
-      <SequenceId>16400</SequenceId>
+      <SequenceId>16405</SequenceId>
       <TypeId>23</TypeId>
     </column>
     <column id="284" parent="266" name="title">
@@ -4343,7 +4342,23 @@ default</CollationNames>
       <RefKeyColPositions>4</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <index id="294" parent="266" name="media_entries_pkey">
+    <foreign-key id="294" parent="266" name="rating_likes_rating_id_fkey">
+      <ColNames>title</ColNames>
+      <ObjectId>16459</ObjectId>
+      <OnDelete>cascade</OnDelete>
+      <StateNumber>779</StateNumber>
+      <RefKeyColPositions>1</RefKeyColPositions>
+      <RefTableId>16406</RefTableId>
+    </foreign-key>
+    <foreign-key id="295" parent="266" name="rating_likes_username_fkey">
+      <ColNames>description</ColNames>
+      <ObjectId>16464</ObjectId>
+      <OnDelete>cascade</OnDelete>
+      <StateNumber>780</StateNumber>
+      <RefKeyColPositions>2</RefKeyColPositions>
+      <RefTableId>16416</RefTableId>
+    </foreign-key>
+    <index id="296" parent="266" name="media_entries_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16412</ObjectId>
@@ -4352,44 +4367,54 @@ default</CollationNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="295" parent="266" name="media_entries_pkey">
+    <key id="297" parent="266" name="media_entries_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16413</ObjectId>
       <Primary>1</Primary>
       <StateNumber>748</StateNumber>
       <UnderlyingIndexId>16412</UnderlyingIndexId>
     </key>
-    <column id="296" parent="267" name="id">
+    <key id="298" parent="266" name="rating_likes_pkey">
+      <ObjectId>16433</ObjectId>
+      <Primary>1</Primary>
+      <StateNumber>770</StateNumber>
+      <UnderlyingIndexId>16432</UnderlyingIndexId>
+    </key>
+    <key id="299" parent="266" name="rating_likes_rating_id_username_key">
+      <ObjectId>16435</ObjectId>
+      <StateNumber>771</StateNumber>
+      <UnderlyingIndexId>16434</UnderlyingIndexId>
+    </key>
+    <column id="300" parent="267" name="id">
       <DefaultExpression>nextval(&apos;rating_likes_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>752</StateNumber>
       <StoredType>integer|0s</StoredType>
-      <SequenceId>16444</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="297" parent="267" name="rating_id">
+    <column id="301" parent="267" name="rating_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>752</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="298" parent="267" name="username">
+    <column id="302" parent="267" name="username">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>752</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="299" parent="267" name="created_at">
+    <column id="303" parent="267" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>4</Position>
       <StateNumber>752</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <foreign-key id="300" parent="267" name="rating_likes_rating_id_fkey">
+    <foreign-key id="304" parent="267" name="rating_likes_rating_id_fkey">
       <ColNames>rating_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16454</ObjectId>
@@ -4398,7 +4423,7 @@ default</CollationNames>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16420</RefTableId>
     </foreign-key>
-    <foreign-key id="301" parent="267" name="rating_likes_username_fkey">
+    <foreign-key id="305" parent="267" name="rating_likes_username_fkey">
       <ColNames>username</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16459</ObjectId>
@@ -4407,7 +4432,7 @@ default</CollationNames>
       <RefKeyColPositions>4</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <index id="302" parent="267" name="rating_likes_pkey">
+    <index id="306" parent="267" name="rating_likes_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16450</ObjectId>
@@ -4416,7 +4441,7 @@ default</CollationNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="303" parent="267" name="rating_likes_rating_id_username_key">
+    <index id="307" parent="267" name="rating_likes_rating_id_username_key">
       <ColNames>rating_id
 username</ColNames>
       <NameSurrogate>1</NameSurrogate>
@@ -4431,83 +4456,82 @@ pg_catalog</CollationParentNames>
       <CollationNames>
 default</CollationNames>
     </index>
-    <key id="304" parent="267" name="rating_likes_pkey">
+    <key id="308" parent="267" name="rating_likes_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16451</ObjectId>
       <Primary>1</Primary>
       <StateNumber>752</StateNumber>
       <UnderlyingIndexId>16450</UnderlyingIndexId>
     </key>
-    <key id="305" parent="267" name="rating_likes_rating_id_username_key">
+    <key id="309" parent="267" name="rating_likes_rating_id_username_key">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16453</ObjectId>
       <StateNumber>752</StateNumber>
       <UnderlyingIndexId>16452</UnderlyingIndexId>
     </key>
-    <check id="306" parent="268" name="ratings_stars_check">
+    <check id="310" parent="268" name="ratings_stars_check">
       <ColNames>stars</ColNames>
       <ObjectId>16427</ObjectId>
       <Predicate>(stars &gt;= 1) AND (stars &lt;= 5)</Predicate>
       <StateNumber>750</StateNumber>
     </check>
-    <column id="307" parent="268" name="id">
+    <column id="311" parent="268" name="id">
       <DefaultExpression>nextval(&apos;ratings_id_seq&apos;::regclass)</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>1</Position>
       <StateNumber>750</StateNumber>
       <StoredType>integer|0s</StoredType>
-      <SequenceId>16419</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="308" parent="268" name="media_id">
+    <column id="312" parent="268" name="media_id">
       <NotNull>1</NotNull>
       <Position>2</Position>
       <StateNumber>750</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="309" parent="268" name="user_id">
+    <column id="313" parent="268" name="user_id">
       <NotNull>1</NotNull>
       <Position>3</Position>
       <StateNumber>876</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="310" parent="268" name="stars">
+    <column id="314" parent="268" name="stars">
       <NotNull>1</NotNull>
       <Position>4</Position>
       <StateNumber>750</StateNumber>
       <StoredType>integer|0s</StoredType>
       <TypeId>23</TypeId>
     </column>
-    <column id="311" parent="268" name="comment">
+    <column id="315" parent="268" name="comment">
       <Position>5</Position>
       <StateNumber>750</StateNumber>
       <StoredType>text|0s</StoredType>
       <TypeId>25</TypeId>
     </column>
-    <column id="312" parent="268" name="comment_approved">
+    <column id="316" parent="268" name="comment_approved">
       <DefaultExpression>false</DefaultExpression>
       <Position>6</Position>
       <StateNumber>750</StateNumber>
       <StoredType>boolean|0s</StoredType>
       <TypeId>16</TypeId>
     </column>
-    <column id="313" parent="268" name="created_at">
+    <column id="317" parent="268" name="created_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>7</Position>
       <StateNumber>750</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <column id="314" parent="268" name="updated_at">
+    <column id="318" parent="268" name="updated_at">
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>8</Position>
       <StateNumber>750</StateNumber>
       <StoredType>timestamp|0s</StoredType>
       <TypeId>1114</TypeId>
     </column>
-    <foreign-key id="315" parent="268" name="ratings_media_id_fkey">
+    <foreign-key id="319" parent="268" name="ratings_media_id_fkey">
       <ColNames>media_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16434</ObjectId>
@@ -4516,7 +4540,7 @@ default</CollationNames>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16401</RefTableId>
     </foreign-key>
-    <foreign-key id="316" parent="268" name="ratings_user_id_fkey">
+    <foreign-key id="320" parent="268" name="ratings_user_id_fkey">
       <ColNames>user_id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16530</ObjectId>
@@ -4525,7 +4549,7 @@ default</CollationNames>
       <RefKeyColPositions>1</RefKeyColPositions>
       <RefTableId>16389</RefTableId>
     </foreign-key>
-    <index id="317" parent="268" name="ratings_pkey">
+    <index id="321" parent="268" name="ratings_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16430</ObjectId>
@@ -4534,7 +4558,7 @@ default</CollationNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="318" parent="268" name="ratings_media_id_username_key">
+    <index id="322" parent="268" name="ratings_media_id_username_key">
       <ColNames>media_id
 user_id</ColNames>
       <ObjectId>16521</ObjectId>
@@ -4542,79 +4566,79 @@ user_id</ColNames>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <key id="319" parent="268" name="ratings_pkey">
+    <key id="323" parent="268" name="ratings_pkey">
       <NameSurrogate>1</NameSurrogate>
       <ObjectId>16431</ObjectId>
       <Primary>1</Primary>
       <StateNumber>750</StateNumber>
       <UnderlyingIndexId>16430</UnderlyingIndexId>
     </key>
-    <key id="320" parent="268" name="ratings_media_id_username_key">
+    <key id="324" parent="268" name="ratings_media_id_username_key">
       <ObjectId>16522</ObjectId>
       <StateNumber>876</StateNumber>
       <UnderlyingIndexId>16521</UnderlyingIndexId>
     </key>
-    <column id="321" parent="269" name="id">
+    <column id="325" parent="269" name="id">
       <IdentityKind>always</IdentityKind>
       <NotNull>1</NotNull>
       <Position>1</Position>
-      <StateNumber>761</StateNumber>
+      <StateNumber>754</StateNumber>
       <StoredType>integer|0s</StoredType>
-      <SequenceId>16484</SequenceId>
+      <SequenceId>16421</SequenceId>
       <TypeId>23</TypeId>
     </column>
-    <column id="322" parent="269" name="username">
+    <column id="326" parent="269" name="username">
       <NotNull>1</NotNull>
-      <Position>4</Position>
-      <StateNumber>746</StateNumber>
+      <Position>2</Position>
+      <StateNumber>752</StateNumber>
       <StoredType>varchar(50)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="323" parent="269" name="password_hash">
+    <column id="327" parent="269" name="password_hash">
       <NotNull>1</NotNull>
-      <Position>6</Position>
-      <StateNumber>746</StateNumber>
+      <Position>3</Position>
+      <StateNumber>752</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <column id="324" parent="269" name="token">
-      <Position>7</Position>
-      <StateNumber>769</StateNumber>
+    <column id="328" parent="269" name="token">
+      <Position>4</Position>
+      <StateNumber>752</StateNumber>
       <StoredType>varchar(255)|0s</StoredType>
       <TypeId>1043</TypeId>
     </column>
-    <index id="325" parent="269" name="users_pkey">
+    <index id="329" parent="269" name="users_pkey">
       <ColNames>id</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16394</ObjectId>
+      <ObjectId>16440</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>769</StateNumber>
+      <StateNumber>774</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
     </index>
-    <index id="326" parent="269" name="users_username_key">
+    <index id="330" parent="269" name="users_username_key">
       <ColNames>username</ColNames>
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16396</ObjectId>
-      <StateNumber>769</StateNumber>
+      <ObjectId>16442</ObjectId>
+      <StateNumber>775</StateNumber>
       <Unique>1</Unique>
       <AccessMethodId>403</AccessMethodId>
       <CollationNames>default</CollationNames>
       <CollationIds>100</CollationIds>
       <CollationParentNames>pg_catalog</CollationParentNames>
     </index>
-    <key id="327" parent="269" name="users_pkey">
+    <key id="331" parent="269" name="users_pkey">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16395</ObjectId>
+      <ObjectId>16441</ObjectId>
       <Primary>1</Primary>
-      <StateNumber>746</StateNumber>
-      <UnderlyingIndexId>16394</UnderlyingIndexId>
+      <StateNumber>774</StateNumber>
+      <UnderlyingIndexId>16440</UnderlyingIndexId>
     </key>
-    <key id="328" parent="269" name="users_username_key">
+    <key id="332" parent="269" name="users_username_key">
       <NameSurrogate>1</NameSurrogate>
-      <ObjectId>16397</ObjectId>
-      <StateNumber>746</StateNumber>
-      <UnderlyingIndexId>16396</UnderlyingIndexId>
+      <ObjectId>16443</ObjectId>
+      <StateNumber>775</StateNumber>
+      <UnderlyingIndexId>16442</UnderlyingIndexId>
     </key>
   </database-model>
 </dataSource>
