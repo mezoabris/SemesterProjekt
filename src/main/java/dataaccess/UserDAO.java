@@ -56,6 +56,7 @@ public class UserDAO {
                 user.setUsername(rs.getString("username"));
                 user.setPassword(rs.getString("password_hash"));
                 user.setToken(rs.getString("token"));
+                user.setUserID(rs.getInt("id"));
                 return user;
             }
             return null;

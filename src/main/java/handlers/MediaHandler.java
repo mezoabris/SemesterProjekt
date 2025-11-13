@@ -17,7 +17,6 @@ import java.util.*;
 public class MediaHandler implements HttpHandler {
     private final MediaService mediaService =  new MediaService();
     public void handle(HttpExchange exchange) throws IOException {
-        System.err.println("User:hyeo ");
         Map<String, String> params = HttpHelper.getQueryParams(exchange);
         String method = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();

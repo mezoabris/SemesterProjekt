@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class UserHandler implements HttpHandler {
     private int userID;
@@ -30,7 +31,7 @@ public class UserHandler implements HttpHandler {
     }
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-
+        System.out.println("userhandler");
         String path = exchange.getRequestURI().getPath();
 
         String method = exchange.getRequestMethod();
@@ -38,6 +39,8 @@ public class UserHandler implements HttpHandler {
         String[] segments =path.split("/");
 
         String userAction = segments[segments.length - 1];
+
+        Map<String, String> params = HttpHelper.getQueryParams(exchange);
 
         this.userID = Integer.parseInt(segments[segments.length - 2]);
 
@@ -48,7 +51,17 @@ public class UserHandler implements HttpHandler {
             HttpHelper.sendJSONResponse(exchange, 403, "Forbidden");
             return;
         }
+        try {
 
+
+            switch (method) {
+                case "GET" -> handleGet(exchange, segments, params);
+                case "POST", "PUT" -> handleWrite(exchange, user, segments);
+                default -> HttpHelper.sendJSONResponse(exchange, 403, "Method not allowed");
+            }
+        }catch (Exception e){
+            HttpHelper.sendJSONResponse(exchange, 500, "Internal Server Error");
+        }
 
 
 
