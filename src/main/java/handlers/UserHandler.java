@@ -1,12 +1,11 @@
 package handlers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import datatransfer.RatingRequest;
-import datatransfer.UserProfileResponse;
+import datatransfer.*;
 import helpers.HttpHelper;
 import helpers.TokenHelper;
+import models.MediaEntry;
 import models.User;
 import service.AuthService;
 import service.RatingService;
@@ -14,7 +13,6 @@ import service.UserService;
 
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +29,10 @@ public class UserHandler implements HttpHandler {
     }
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        System.out.println("userhandler");
         String path = exchange.getRequestURI().getPath();
 
         String method = exchange.getRequestMethod();
-
+        System.out.println("Method: " + method);
         String[] segments =path.split("/");
 
         String userAction = segments[segments.length - 1];
@@ -55,7 +52,7 @@ public class UserHandler implements HttpHandler {
 
 
             switch (method) {
-                case "GET" -> handleGet(exchange, segments, params);
+                case "GET" -> handleGet(exchange, userAction);
                 case "POST", "PUT" -> handleWrite(exchange, user, segments);
                 default -> HttpHelper.sendJSONResponse(exchange, 403, "Method not allowed");
             }
@@ -65,45 +62,62 @@ public class UserHandler implements HttpHandler {
 
 
 
-        switch (method) {
-            case "GET":
-                if(userAction.equals("profile")){
-                    try {
-                        System.out.println("Getting profile");
-                        handleGetProfile(exchange);
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                if(userAction.equals("ratings")){
-                    try {
-                        System.out.println("Getting ratings");
-                        handleGetRatingHistory(exchange);
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
 
-                } {
-                    HttpHelper.sendTextResponse(exchange, 404, "Not found");
-                }
-                break;
-            case "POST":
-                break;
-            case "PUT":
-                break;
-
-            default:
-                HttpHelper.sendTextResponse(exchange, 405, "Method not allowed");
-        }
 
 
 
 
     }
+    private void handleGet(HttpExchange exchange, String action) throws IOException {
+        try{
+            switch (action) {
+                case "profile" -> handleGetProfile(exchange);
+                case "ratings" -> handleGetRatingHistory(exchange);
+                case "favorites"-> handleGetFavorites(exchange);
+            }
+        }catch (SQLException e){}
+    }
+
+    private void handleGetFavorites(HttpExchange exchange) {
+        System.out.println("Getting favorites");
+        FavoritesRequest favorites = new FavoritesRequest();
+        try{
+
+            favorites = userService.findUserFavorites(this.userID);
+
+            HttpHelper.sendJSONResponse(exchange, 200, favorites );
+
+
+        }catch (SQLException e){
+            System.out.println(e);
+
+        }catch (Exception e){
+            System.out.println(e);
+        }
+
+
+    }
+
+    private void handleWrite(HttpExchange exchange, User user, String[] segments) throws IOException {
+        System.out.println("Writing profile");
+        UserProfile profileChanges = HttpHelper.parseRequestBody(exchange, UserProfile.class);
+        System.out.println("Profile changes: " + profileChanges);
+        try{
+            UserResponse userResponse = userService.editProfile(this.userID,profileChanges);
+            HttpHelper.sendJSONResponse(exchange,  userResponse.getStatus(), userResponse.getMessage());
+
+        }catch (Exception e){
+            System.out.println("Exception: " + e.getClass().getName());
+            System.out.println("Message: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
     private void handleGetProfile(HttpExchange exchange) throws SQLException, IOException {
 
 
-        User user = userService.findUserProfile(userID);
+        User user = userService.findUserProfile(this.userID);
         System.out.println("User found: " + (user != null));
 
         if (user == null) {
