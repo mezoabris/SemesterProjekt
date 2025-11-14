@@ -1,13 +1,15 @@
 package dataaccess;
 import config.DatabaseConfig;
+import datatransfer.MediaRequest;
+import models.MediaEntry;
 import models.User;
 
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
 public class UserDAO {
-
+    MediaDAO mediaDAO = new MediaDAO();
 
     public User create(User user) throws SQLException {
         String sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
@@ -79,6 +81,7 @@ public class UserDAO {
                     user.setUsername(rs.getString("username"));
                     user.setPassword(rs.getString("password_hash"));
                     user.setToken(rs.getString("token"));
+                    user.setFavoriteGenre(rs.getString("favoritegenre"));
                     return user;
                 }
                 return null;
@@ -122,7 +125,24 @@ public class UserDAO {
         }
         return user;
     }
+    public List<MediaRequest> findFavoritesByUserID(int userID) throws SQLException {
+        List<MediaRequest> favorites = new ArrayList<>();
+        String sql = "SELECT m.* FROM media_entries m " +
+                "JOIN favorites f ON m.id = f.media_id " +
+                "WHERE f.user_id = ?";
+        try (Connection con = DatabaseConfig.getConnection();
+            PreparedStatement stmt = con.prepareStatement(sql)){
+            stmt.setInt(1, userID);
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()) {
+                favorites.add(mediaDAO.mapResultSetToMediaRequest(rs));
 
+            }
+        }catch(SQLException e){
+            throw new SQLDataException(e.getMessage());
+        }
+        return favorites;
+    }
 
     public void updateToken(String username, String token) {
         String sql =  "UPDATE users SET token = ? WHERE username = ?";

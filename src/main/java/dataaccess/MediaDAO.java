@@ -28,7 +28,7 @@ public class MediaDAO {
         }
     }
 
-    private MediaRequest mapResultSetToMediaRequest(ResultSet rs) throws SQLException {
+    public MediaRequest mapResultSetToMediaRequest(ResultSet rs) throws SQLException {
         MediaRequest media = new MediaRequest();
         media.setTitle(rs.getString("title"));
         media.setDescription(rs.getString("description"));

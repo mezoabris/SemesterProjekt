@@ -188,7 +188,8 @@ CREATE TABLE public.users (
     id integer NOT NULL,
     username character varying(50) NOT NULL,
     password_hash character varying(255) NOT NULL,
-    token character varying(255)
+    token character varying(255),
+    favoritegenre character varying(255) DEFAULT = 'Unknown'
 );
 
 

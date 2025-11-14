@@ -15,6 +15,8 @@ public class User {
     private String token;
     @Getter @Setter
     private int userID;
+    @Getter @Setter
+    private String favoriteGenre;
 
     public User(){};
 

@@ -24,6 +24,8 @@ public class HttpHelper {
     }
     public static <T>T parseRequestBody(HttpExchange exchange,  Class<T> template ) throws IOException {
         String body = readRequestBody(exchange);
+        System.out.println("Parsing request body: " + body);
+        System.out.println(mapper.readValue(body, template));
         return mapper.readValue(body, template);
     }
     public static void sendJSONResponse(HttpExchange httpExchange, int status, Object responseObject) throws IOException {
