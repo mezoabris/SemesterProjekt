@@ -1,40 +1,36 @@
 package datatransfer;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class RatingRequest {
+    @Getter
+    @Setter
+    int status;
+    @Getter
+    @Setter
+    String message;
+    @Getter
+    @Setter
     java.sql.Timestamp createdAt;
+    @Getter
+    @Setter
     String title;
+    @Getter
+    @Setter
     int stars;
+    @Getter
+    @Setter
     String comment;
+    @Getter
+    @Setter
+    boolean commentApproved;
 
     public RatingRequest(String title, int stars, String comment, java.sql.Timestamp createdAt ) {
         this.title = title;
         this.stars = stars;
         this.comment = comment;
         this.createdAt = createdAt;
-    }
-    public java.sql.Timestamp getCreatedAt() {
-        return createdAt;
-    }
-    public void setCreatedAt(java.sql.Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-    public String getTitle() {
-        return title;
-    }
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    public int getStars() {
-        return stars;
-    }
-    public void setStars(int stars) {
-        this.stars = stars;
-    }
-    public String getComment() {
-        return comment;
-    }
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
 

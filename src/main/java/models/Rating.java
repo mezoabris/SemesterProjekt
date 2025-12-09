@@ -8,6 +8,9 @@ import java.security.Timestamp;
 public class Rating {
     @Getter
     @Setter
+    int mediaID;
+    @Getter
+    @Setter
     private int stars;
     @Getter
     @Setter
@@ -17,9 +20,15 @@ public class Rating {
     private boolean commentApproved;
     @Getter
     @Setter
-    private Timestamp createdAt;
+    private java.sql.Timestamp  createdAt;
     @Getter
     @Setter
-    private Timestamp updatedAt;
+    private java.sql.Timestamp updatedAt;
+    public Rating(int stars, String comment, java.sql.Timestamp createdAt ) {
+        this.stars = stars;
+        this.comment = comment;
+        this.createdAt = createdAt;
+    }
+    public Rating(){};
 
 }

@@ -137,11 +137,5 @@ public class UserHandler implements HttpHandler {
         HttpHelper.sendJSONResponse(exchange, 200, ratings);
     }
 
-        /*
-          TODO handleGetRatingHistory()
 
-          TODO handleGetFavorites()
-          TODO handleUpdateProfile()
-
-         */
 }
