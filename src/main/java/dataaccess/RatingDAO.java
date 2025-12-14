@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RatingDAO {
-    public List<RatingRequest> getUserRatings(int userID) throws SQLException {
+    public List<RatingRequest> getUserRatings(Connection con, int userID) throws SQLException {
         List<RatingRequest> ratings = new ArrayList<>();
 
         String sql = "SELECT r.*, m.* "
@@ -21,8 +21,7 @@ public class RatingDAO {
                 + "INNER JOIN media_entries m ON r.media_id = m.id "
                 + "INNER JOIN users u ON r.user_id = u.id "
                 + "WHERE r.user_id = ?";
-        try (Connection con = DatabaseConfig.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);) {
+        try (PreparedStatement ps = con.prepareStatement(sql);) {
             ps.setInt(1, userID);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -43,11 +42,10 @@ public class RatingDAO {
         return ratings;
     }
 
-    public RatingResponse createRating(int userID, Rating ratingRequest) {
+    public RatingResponse createRating(Connection con, int userID, Rating ratingRequest) {
         String sql = "INSERT INTO ratings (media_id, user_id, stars, comment) VALUES (?, ?, ?, ?)";
         RatingResponse response = new RatingResponse();
-        try(Connection conn = DatabaseConfig.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
+        try(PreparedStatement stmt = con.prepareStatement(sql)){
             stmt.setInt(1, ratingRequest.getMediaID());
             stmt.setInt(2, userID);
             stmt.setInt(3, ratingRequest.getStars());
@@ -70,11 +68,10 @@ public class RatingDAO {
         return response;
     }
 
-    public RatingResponse updateRating(int mediaID, Rating ratingRequest, int userID) {
+    public RatingResponse updateRating(Connection con, int mediaID, Rating ratingRequest, int userID) {
         String SQL = "UPDATE ratings SET stars = ?, comment = ?, updated_at = CURRENT_TIMESTAMP WHERE media_id = ? AND user_id = ?";
         RatingResponse response = new RatingResponse();
-        try(Connection con = DatabaseConfig.getConnection();
-            PreparedStatement stmt = con.prepareStatement(SQL)){
+        try(PreparedStatement stmt = con.prepareStatement(SQL)){
             stmt.setInt(1, ratingRequest.getStars());
             stmt.setString(2, ratingRequest.getComment());
             stmt.setInt(3, mediaID);
@@ -96,11 +93,10 @@ public class RatingDAO {
         return response;
     }
 
-    public Rating findByUserAndMedia(int userID, int mediaID) {
+    public Rating findByUserAndMedia(Connection con, int userID, int mediaID) {
         String SQL = "SELECT * FROM ratings WHERE user_id = ? AND media_id = ?";
         Rating rating = new Rating();
-        try(Connection con = DatabaseConfig.getConnection();
-            PreparedStatement stmt = con.prepareStatement(SQL)){
+        try(PreparedStatement stmt = con.prepareStatement(SQL)){
             stmt.setInt(1, userID);
             stmt.setInt(2, mediaID);
             ResultSet rs = stmt.executeQuery();

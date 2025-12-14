@@ -2,12 +2,15 @@ package handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import dataaccess.UserDAO;
 import datatransfer.*;
 import helpers.HttpHelper;
+import helpers.PasswordHasher;
 import helpers.TokenHelper;
 import models.MediaEntry;
 import models.User;
 import service.AuthService;
+import service.MediaService;
 import service.RatingService;
 import service.UserService;
 
@@ -20,11 +23,13 @@ import java.util.Map;
 
 public class UserHandler implements HttpHandler {
     private int userID;
-    private final AuthService authService =  new AuthService();
-    UserService userService;
-    RatingService ratingService = new RatingService();
-    public UserHandler(UserService userService) {
 
+
+
+    private final UserService userService;
+    private final RatingService ratingService;
+    public UserHandler(UserService userService, RatingService ratingService) {
+        this.ratingService = ratingService;
         this.userService = userService;
     }
     @Override

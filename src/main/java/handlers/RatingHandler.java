@@ -15,7 +15,10 @@ import java.sql.SQLException;
 
 public class RatingHandler implements HttpHandler {
 
-    RatingService  ratingService = new RatingService();
+    private final RatingService ratingService;
+    public RatingHandler(RatingService ratingService){
+        this.ratingService = ratingService;
+    }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -23,18 +26,21 @@ public class RatingHandler implements HttpHandler {
     TODO rateMedia(RatingRequest)
 
      */
-        System.out.println("Getting ratings");
         String path = exchange.getRequestURI().getPath();
         String method = exchange.getRequestMethod();
-        System.out.println("Method: " + method);
         String[] segments =path.split("/");
-        String userAction = segments[segments.length - 1];
-        int ID = Integer.parseInt(segments[segments.length - 2]);
+        String userAction = "";
+        int ID = 0;
+        if(segments.length > 2){
+            userAction = segments[segments.length - 1];
+            ID = Integer.parseInt(segments[segments.length - 2]);
+        }
+
         User user = TokenHelper.requireValidToken(exchange);
         if(user == null) HttpHelper.sendJSONResponse(exchange, 400, "Invalid token");
-        System.out.println("validation ok");
         try{
             switch (method) {
+                case "GET" -> handleGet(exchange, user);
                 case "POST", "PUT" -> handleWrite(exchange, user, userAction, ID);
             }
         }catch(Exception e){
@@ -42,6 +48,10 @@ public class RatingHandler implements HttpHandler {
         }
 
 
+
+    }
+
+    private void handleGet(HttpExchange exchange, User user) {
 
     }
 
@@ -58,18 +68,19 @@ public class RatingHandler implements HttpHandler {
                 case "confirm"->handleConfirm(exchange, ID, user);
             }
         }catch(Exception e){
-
+            HttpHelper.sendTextResponse(exchange, 500, e.getMessage());
         }
 
     }
 
     private void handleConfirm(HttpExchange exchange, int id, User user) {
+
     }
 
     private void handleLike(HttpExchange exchange, int id, User user) {
     }
 
-    private void handleRate(HttpExchange exchange, int mediaID, User user) throws IOException {
+    private void handleRate(HttpExchange exchange, int mediaID, User user) throws IOException, SQLException {
         System.out.println("Handling rating request");
 
        Rating ratingRequest = HttpHelper.parseRequestBody(exchange, Rating.class);

@@ -11,10 +11,9 @@ import java.util.List;
 public class UserDAO {
     MediaDAO mediaDAO = new MediaDAO();
 
-    public User create(User user) throws SQLException {
+    public User create(Connection con, User user) throws SQLException {
         String sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
-        try (Connection con = DatabaseConfig.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, user.getUsername());
             stmt.setString(2, user.getPassword());
@@ -28,37 +27,18 @@ public class UserDAO {
         }
 
     }
-    public User findByUsername(String username) throws SQLException {
+    public User findByUsername(Connection con,String username) throws SQLException {
         String sql = "SELECT * FROM users WHERE username = ?";
-        try (Connection con = DatabaseConfig.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)){
+        try (PreparedStatement stmt = con.prepareStatement(sql)){
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 User user = new User();
-                user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password_hash"));
-                user.setToken(rs.getString("token"));
-                return user;
-            }
-            return null;
-
-        }catch (SQLException e){
-            throw new SQLDataException(e.getMessage());
-        }
-    }
-    public User findByToken(String token) throws SQLException {
-        String sql = "SELECT * FROM users WHERE token = ?";
-        try (Connection con = DatabaseConfig.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)){
-            stmt.setString(1, token);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                User user = new User();
-                user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password_hash"));
-                user.setToken(rs.getString("token"));
                 user.setUserID(rs.getInt("id"));
+                user.setUsername(rs.getString("username"));
+                user.setPassword(rs.getString("password_hash"));
+                user.setToken(rs.getString("token"));
+                user.setFavoriteGenre(rs.getString("favoritegenre"));
                 return user;
             }
             return null;
@@ -68,10 +48,9 @@ public class UserDAO {
         }
     }
 
-    public User findByUserID(int userID) throws SQLException {
+    public User findByUserID(Connection con, int userID) throws SQLException {
         String sql = "SELECT * FROM users WHERE id = ?";
-        try (Connection con = DatabaseConfig.getConnection();
-            PreparedStatement stmt = con.prepareStatement(sql)){
+        try (PreparedStatement stmt = con.prepareStatement(sql)){
             stmt.setInt(1, userID);
 
             try (ResultSet rs = stmt.executeQuery()) {  // ← Execute AFTER setting parameter
@@ -92,11 +71,10 @@ public class UserDAO {
         }
     }
 
-    public List<User> getUsers() throws SQLException {
+    public List<User> getUsers(Connection con) throws SQLException {
         List<User> users = new ArrayList<>();
         String sql = "SELECT username, password_hash FROM users";
-        try (Connection con = DatabaseConfig.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
              ResultSet rs = stmt.executeQuery();
              while(rs.next()) {
 
@@ -110,10 +88,9 @@ public class UserDAO {
         }
         return users;
     }
-    public User editUser(User user, String columnName, String newValue) throws SQLException {
+    public User editUser(Connection con, User user, String columnName, String newValue) throws SQLException {
         String sql = "UPDATE users SET " + columnName + " = ? WHERE username = ?";
-        try(Connection con = DatabaseConfig.getConnection();
-            PreparedStatement stmt = con.prepareStatement(sql);){
+        try(PreparedStatement stmt = con.prepareStatement(sql);){
             stmt.setString(1, newValue);
             stmt.setString(2, user.getUsername());
             int affected = stmt.executeUpdate();
@@ -125,13 +102,12 @@ public class UserDAO {
         }
         return user;
     }
-    public List<MediaRequest> findFavoritesByUserID(int userID) throws SQLException {
+    public List<MediaRequest> findFavoritesByUserID(Connection con, int userID) throws SQLException {
         List<MediaRequest> favorites = new ArrayList<>();
         String sql = "SELECT m.* FROM media_entries m " +
                 "JOIN favorites f ON m.id = f.media_id " +
                 "WHERE f.user_id = ?";
-        try (Connection con = DatabaseConfig.getConnection();
-            PreparedStatement stmt = con.prepareStatement(sql)){
+        try (PreparedStatement stmt = con.prepareStatement(sql)){
             stmt.setInt(1, userID);
             ResultSet rs = stmt.executeQuery();
             while(rs.next()) {
@@ -144,10 +120,9 @@ public class UserDAO {
         return favorites;
     }
 
-    public void updateToken(String username, String token) {
+    public void updateToken(Connection con, String username, String token) {
         String sql =  "UPDATE users SET token = ? WHERE username = ?";
-        try(Connection conn = DatabaseConfig.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try(PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, token);
             stmt.setString(2, username);
             int affected = stmt.executeUpdate(); // <-- use executeUpdate

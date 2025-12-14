@@ -11,16 +11,15 @@ import java.util.*;
 public class MediaDAO {
 
 
-    public boolean createMedia(MediaRequest media) throws SQLException {
+    public boolean createMedia(Connection con, MediaRequest media) throws SQLException {
         String sql = "INSERT INTO media_entries(title, description, media_type, release_year, genre, age_restriction, creator) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, media.getTitle());
             stmt.setString(2, media.getDescription());
             stmt.setString(3, media.getMediaType());
             stmt.setInt(4, media.getReleaseYear());
-            stmt.setArray(5, conn.createArrayOf("text", media.getGenres().toArray()));
+            stmt.setArray(5, con.createArrayOf("text", media.getGenres().toArray()));
             stmt.setInt(6, media.getAgeRestriction());
             stmt.setString(7, media.getCreator());
 
@@ -49,10 +48,9 @@ public class MediaDAO {
         return media;
     }
 
-    public MediaRequest findById(Integer mediaID) throws SQLException {
+    public MediaRequest findById(Connection con, Integer mediaID) throws SQLException {
         String sql = "SELECT * FROM media_entries WHERE id = ?";
-        try (Connection con = DatabaseConfig.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setInt(1, mediaID);
             ResultSet rs = stmt.executeQuery();
@@ -64,7 +62,7 @@ public class MediaDAO {
             }
         }
     }
-    public MediaResponse updateMedia(int mediaID,MediaRequest media) throws SQLException {
+    public MediaResponse updateMedia(Connection con, int mediaID,MediaRequest media) throws SQLException {
         String title= media.getTitle();
         String description = media.getDescription();
         String mediaType = media.getMediaType();
@@ -77,13 +75,12 @@ public class MediaDAO {
                                              "media_type = ?, release_year = ?, " +
                                              "genre = ?, age_restriction = ?, " +
                                              "updated_at = ? WHERE  id = ?";
-        try (Connection conn = DatabaseConfig.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, title);
             stmt.setString(2, description);
             stmt.setString(3, mediaType);
             stmt.setInt(4, releaseYear);
-            stmt.setArray(5, conn.createArrayOf("text", genre.toArray()));
+            stmt.setArray(5, con.createArrayOf("text", genre.toArray()));
             stmt.setInt(6, ageRestriction);
             stmt.setTimestamp(7, new Timestamp(System.currentTimeMillis()));
             stmt.setInt(8, mediaID);
@@ -100,11 +97,10 @@ public class MediaDAO {
 
         }
     }
-    public MediaResponse deleteMedia(int mediaID){
+    public MediaResponse deleteMedia(Connection con, int mediaID){
         MediaResponse response = new MediaResponse();
         String sql = "DELETE FROM media_entries WHERE id = ?";
-        try(Connection conn = DatabaseConfig.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try(PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setInt(1, mediaID);
             int affected = stmt.executeUpdate();
             if (affected > 0) {
@@ -122,12 +118,11 @@ public class MediaDAO {
         return response;
     }
 
-    public List<MediaRequest> findAll() throws SQLException {
+    public List<MediaRequest> findAll(Connection con) throws SQLException {
         String sql = "SELECT * FROM media_entries";
         List<MediaRequest> results = new ArrayList<>();
 
-        try (Connection con = DatabaseConfig.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql);
+        try (PreparedStatement stmt = con.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -137,12 +132,11 @@ public class MediaDAO {
 
         return results;
     }
-    public List<MediaRequest> findByFilter(Map<String, String> params) throws SQLException {
+    public List<MediaRequest> findByFilter(Connection con, Map<String, String> params) throws SQLException {
         List<Object> paramValues = new ArrayList<>();
         StringBuilder sql = makeQueryHelper(params, paramValues);
 
-        try (Connection con = DatabaseConfig.getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql.toString())) {
+        try (PreparedStatement stmt = con.prepareStatement(sql.toString())) {
             for (int j = 0; j < paramValues.size(); j++) {
                 Object val = paramValues.get(j);
                 switch (val) {

@@ -15,7 +15,10 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class MediaHandler implements HttpHandler {
-    private final MediaService mediaService =  new MediaService();
+    private final MediaService mediaService;
+    public MediaHandler(MediaService mediaService){
+        this.mediaService = mediaService;
+    }
     public void handle(HttpExchange exchange) throws IOException {
         Map<String, String> params = HttpHelper.getQueryParams(exchange);
         String method = exchange.getRequestMethod();
@@ -43,7 +46,7 @@ public class MediaHandler implements HttpHandler {
         try{
             MediaRequest request = HttpHelper.parseRequestBody(exchange, MediaRequest.class);
             request.setCreator(user.getUsername());
-            MediaResponse response = mediaService.upsertMedia(request, segments);
+            MediaResponse response = mediaService.upsertMedia(request, segments, user.getUsername());
             HttpHelper.sendJSONResponse(exchange, 200, response.getMessage());
         }catch (SQLException | IOException e ){
             HttpHelper.sendJSONResponse(exchange, 500, e.getMessage());
@@ -59,7 +62,7 @@ public class MediaHandler implements HttpHandler {
         HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
     }
 
-    private void handleDelete(HttpExchange exchange, String[] segments) throws IOException {
+    private void handleDelete(HttpExchange exchange, String[] segments) throws IOException, SQLException {
         Integer mediaID = extractMediaIDFromPath(segments);
         if (mediaID == null) {
             HttpHelper.sendJSONResponse(exchange, 400, "Media ID is required");

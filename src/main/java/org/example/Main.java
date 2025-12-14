@@ -1,7 +1,14 @@
 package org.example;
 import com.sun.net.httpserver.HttpServer;
+import dataaccess.MediaDAO;
+import dataaccess.RatingDAO;
+import dataaccess.UserDAO;
 import handlers.*;
 import config.DatabaseConfig;
+import helpers.ConnectionProvider;
+import helpers.DefaultConnectionProvider;
+import helpers.GenreValidation;
+import helpers.PasswordHasher;
 import service.*;
 
 
@@ -17,21 +24,28 @@ public class Main {
 
             // Create HTTP server
             HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-            AuthService authService = new AuthService();
-            MediaService mediaService = new MediaService();
-            UserService userService = new UserService();
+            PasswordHasher hasher = new PasswordHasher();
+            UserDAO userDAO = new UserDAO();
+            MediaDAO mediaDAO = new MediaDAO();
+            RatingDAO ratingDAO = new RatingDAO();
+            ConnectionProvider connectionProvider = new DefaultConnectionProvider();
+            GenreValidation validator = new GenreValidation();
+            AuthService authService = new AuthService(hasher, userDAO, connectionProvider);
+
+            MediaService mediaService = new MediaService(mediaDAO, connectionProvider);
+            UserService userService = new UserService(validator, userDAO, connectionProvider);
             RecommendationService recommendationService = new RecommendationService();
-            RatingService ratingService = new RatingService();
+            RatingService ratingService = new RatingService(ratingDAO, connectionProvider);
 
             // Register handlers with their routes
-            server.createContext("/api/users/register", new RegisterHandler());
-            server.createContext("/api/users/login", new LoginHandler());
-            server.createContext("/api/users", new UserHandler(userService));
-            server.createContext("/api/media", new MediaHandler());
+            server.createContext("/api/users/register", new RegisterHandler(authService));
+            server.createContext("/api/users/login", new LoginHandler(authService));
+            server.createContext("/api/users", new UserHandler(userService, ratingService));
+            server.createContext("/api/media", new MediaHandler(mediaService));
 
 
-            server.createContext("/api/ratings", new RatingHandler());
-            server.createContext("/api/recommendations", new RecommendationHandler());
+            server.createContext("/api/ratings", new RatingHandler(ratingService));
+            server.createContext("/api/recommendations", new RecommendationHandler(recommendationService));
 
             // Start server
             server.setExecutor(null);

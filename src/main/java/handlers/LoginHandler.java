@@ -2,8 +2,10 @@ package handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import dataaccess.UserDAO;
 import datatransfer.AuthRequest;
 import helpers.HttpHelper;
+import helpers.PasswordHasher;
 import models.User;
 import service.AuthService;
 
@@ -13,7 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoginHandler implements HttpHandler {
-    private AuthService authService = new AuthService();
+
+    private final AuthService authService;
+    public LoginHandler(AuthService authService){
+        this.authService = authService;
+    }
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {

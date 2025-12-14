@@ -1,6 +1,7 @@
 package helpers;
 
 import com.sun.net.httpserver.HttpExchange;
+import dataaccess.UserDAO;
 import models.User;
 import service.AuthService;
 
@@ -11,7 +12,11 @@ import java.util.Map;
 import java.util.UUID;
 
 public class TokenHelper {
-    static AuthService authService =  new AuthService();
+    private static AuthService authService;
+    public TokenHelper(AuthService authService){
+        TokenHelper.authService = authService;
+    }
+
 
 
     public static String generateToken(String username) {
@@ -21,11 +26,18 @@ public class TokenHelper {
         if (token == null || !token.endsWith("-mrpToken")) {
             return null;
         }
-        int firstDash = token.indexOf("-");
-        if (firstDash > 0) {
-            return token.substring(0, firstDash);
+        // Token format: username + "-" + UUID + "-mrpToken"
+        // UUID length = 36
+        // "-mrpToken" length = 9
+        // Separator "-" length = 1
+        // Total suffix length = 46
+        int suffixLength = 36 + 1 + 9;
+        
+        if (token.length() <= suffixLength) {
+            return null;
         }
-        return null;
+        
+        return token.substring(0, token.length() - suffixLength);
     }
     public static boolean isValidToken(HttpExchange exchange, int userID) throws IOException {
         String tokenSent = TokenHelper.extractToken(exchange);
