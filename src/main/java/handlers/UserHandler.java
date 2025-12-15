@@ -122,17 +122,17 @@ public class UserHandler implements HttpHandler {
     private void handleGetProfile(HttpExchange exchange) throws SQLException, IOException {
 
 
-        User user = userService.findUserProfile(this.userID);
-        System.out.println("User found: " + (user != null));
+        UserResponse res = userService.findUserProfile(this.userID);
+        System.out.println("User found: " + (res.getUser() != null));
 
-        if (user == null) {
+        if (res.getUser() == null) {
             System.out.println("Sending 404");
             HttpHelper.sendTextResponse(exchange, 404, "User not found");
             return;
         }
 
         System.out.println("Sending user JSON");
-        HttpHelper.sendJSONResponse(exchange, 200, user);
+        HttpHelper.sendJSONResponse(exchange, 200, res);
     }
     public void handleGetRatingHistory(HttpExchange exchange) throws SQLException, IOException {
         List<RatingRequest> ratings = ratingService.findAllRatings(userID);

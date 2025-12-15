@@ -29,7 +29,7 @@ SET default_table_access_method = heap;
 CREATE TABLE public.favorites (
     id integer NOT NULL,
     media_id integer NOT NULL,
-    username character varying(50) NOT NULL,
+    user_id integer NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -189,7 +189,7 @@ CREATE TABLE public.users (
     username character varying(50) NOT NULL,
     password_hash character varying(255) NOT NULL,
     token character varying(255),
-    favoritegenre character varying(255) DEFAULT = 'Unknown'
+    favoritegenre character varying(255) DEFAULT 'Unknown'
 );
 
 
@@ -241,7 +241,7 @@ ALTER TABLE ONLY public.ratings ALTER COLUMN id SET DEFAULT nextval('public.rati
 -- Data for Name: favorites; Type: TABLE DATA; Schema: public; Owner: myuser
 --
 
-COPY public.favorites (id, media_id, username, created_at) FROM stdin;
+COPY public.favorites (id, media_id, user_id, created_at) FROM stdin;
 \.
 
 
@@ -319,11 +319,11 @@ SELECT pg_catalog.setval('public.users_id_seq', 10, true);
 
 
 --
--- Name: favorites favorites_media_id_username_key; Type: CONSTRAINT; Schema: public; Owner: myuser
+-- Name: favorites favorites_media_id_user_id_key; Type: CONSTRAINT; Schema: public; Owner: myuser
 --
 
 ALTER TABLE ONLY public.favorites
-    ADD CONSTRAINT favorites_media_id_username_key UNIQUE (media_id, username);
+    ADD CONSTRAINT favorites_media_id_user_id_key UNIQUE (media_id, user_id);
 
 
 --
@@ -399,11 +399,11 @@ ALTER TABLE ONLY public.favorites
 
 
 --
--- Name: favorites favorites_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: myuser
+-- Name: favorites favorites_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: myuser
 --
 
 ALTER TABLE ONLY public.favorites
-    ADD CONSTRAINT favorites_username_fkey FOREIGN KEY (username) REFERENCES public.users(username) ON DELETE CASCADE;
+    ADD CONSTRAINT favorites_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --

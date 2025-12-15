@@ -1,5 +1,6 @@
 package service;
 
+import dataaccess.RatingDAOStub;
 import dataaccess.UserDAOStub;
 import datatransfer.UserProfile;
 import datatransfer.UserResponse;
@@ -23,11 +24,12 @@ class UserServiceTest {
     @BeforeEach
     void setup() throws SQLException {
         GenreValidation validator = new GenreValidation();
-        UserDAOStub stub = new UserDAOStub();
+        UserDAOStub userStub = new UserDAOStub();
+        RatingDAOStub ratingStub = new RatingDAOStub();
         ConnectionProvider provider = mock(ConnectionProvider.class);
         when(provider.getConnection()).thenReturn(mock(Connection.class));
 
-        userService = new UserService(validator, stub, provider);
+        userService = new UserService(validator, userStub, ratingStub, provider);
     }
     @Test
     void findAll() throws SQLException {
@@ -37,8 +39,9 @@ class UserServiceTest {
 
     @Test
     void testFindUserProfile() throws Exception {
-        User user = userService.findUserProfile(1);
-        assertEquals("test1", user.getUsername());
+        UserResponse res = new UserResponse();
+        res = userService.findUserProfile(1);
+        assertEquals("test1", res.getUser().getUsername());
     }
 
     @Test

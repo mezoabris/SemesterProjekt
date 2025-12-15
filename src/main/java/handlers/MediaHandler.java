@@ -32,7 +32,7 @@ public class MediaHandler implements HttpHandler {
                 case "GET" -> handleGet(exchange, segments, params);
                 case "POST" -> handleWrite(exchange, user, segments); // ✅ unified handler
                 case "PUT" -> handleWrite(exchange, user, segments);
-                case "DELETE" -> handleDelete(exchange, segments);
+                case "DELETE" -> handleDelete(exchange, user, segments);
                 default -> HttpHelper.sendJSONResponse(exchange, 405, "Method not allowed");
             }
         } catch (Exception e) {
@@ -62,13 +62,13 @@ public class MediaHandler implements HttpHandler {
         HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
     }
 
-    private void handleDelete(HttpExchange exchange, String[] segments) throws IOException, SQLException {
+    private void handleDelete(HttpExchange exchange,User user, String[] segments) throws IOException, SQLException {
         Integer mediaID = extractMediaIDFromPath(segments);
         if (mediaID == null) {
             HttpHelper.sendJSONResponse(exchange, 400, "Media ID is required");
             return;
         }
-        MediaResponse response = mediaService.deleteMediaByID(mediaID);
+        MediaResponse response = mediaService.deleteMediaByID(mediaID, user.getUsername());
         HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
     }
 

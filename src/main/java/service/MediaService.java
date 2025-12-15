@@ -77,9 +77,23 @@ public class MediaService {
 
     }
 
-    public MediaResponse deleteMediaByID(Integer mediaID) throws SQLException {
+    public MediaResponse deleteMediaByID(Integer mediaID, String currentUsername) throws SQLException {
         MediaResponse res = new MediaResponse();
         try(Connection con = connectionProvider.getConnection()){
+            MediaRequest existingMedia = mediaDAO.findById(con, mediaID);
+
+            if(existingMedia == null){
+                res.setStatus(404);
+                res.setMessage("Media not found!");
+                con.rollback();
+                return res;
+            }
+            if(!existingMedia.getCreator().equals(currentUsername)){
+                res.setStatus(403);
+                res.setMessage("Your are not the owner of this media");
+                con.rollback();
+                return res;
+            }
             res =  mediaDAO.deleteMedia(con, mediaID);
         }
         return res;

@@ -1,5 +1,6 @@
 package dataaccess;
 
+import datatransfer.UserResponse;
 import models.User;
 
 import java.sql.Connection;

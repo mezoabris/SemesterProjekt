@@ -1,9 +1,7 @@
 package service;
+import dataaccess.RatingDAO;
 import dataaccess.UserDAO;
-import datatransfer.FavoritesRequest;
-import datatransfer.MediaRequest;
-import datatransfer.UserProfile;
-import datatransfer.UserResponse;
+import datatransfer.*;
 import helpers.ConnectionProvider;
 import helpers.GenreValidation;
 import models.MediaEntry;
@@ -19,10 +17,12 @@ import java.util.Objects;
 public class UserService {
     private final GenreValidation validator;
     private final UserDAO userDAO;
+    private final RatingDAO ratingDAO;
     ConnectionProvider connectionProvider;
-    public UserService(GenreValidation validator, UserDAO userDAO, ConnectionProvider connectionProvider ){
+    public UserService(GenreValidation validator, UserDAO userDAO, RatingDAO ratingDAO, ConnectionProvider connectionProvider ){
         this.validator = validator;
         this.userDAO = userDAO;
+        this.ratingDAO = ratingDAO;
         this.connectionProvider = connectionProvider;
     }
     public List<User> findAll() throws SQLException {
@@ -33,12 +33,32 @@ public class UserService {
             return userList;
         }
     }
-    public User findUserProfile(int userID) throws SQLException {
+    public UserResponse findUserProfile(int userID) throws SQLException {
         try(Connection conn = connectionProvider.getConnection()){
-
-            User user = new  User();
-            user = userDAO.findByUserID(conn, userID);
-            return user;
+            User user = userDAO.findByUserID(conn, userID);
+            List<RatingRequest> ratings = ratingDAO.getUserRatings(conn, userID);
+            double ratingsSum = 0;
+            for(RatingRequest rating: ratings){
+                ratingsSum+= rating.getStars();
+            }
+            UserResponse response = new UserResponse();
+            response.setRatings(ratings);
+            response.setTotalRatings(ratings.size());
+            if(!ratings.isEmpty()){
+                response.setAverageScore(ratingsSum / ratings.size());
+            }else{
+                response.setAverageScore(0.0);
+            }
+            response.setFavorites(userDAO.findFavoritesByUserID(conn, userID));
+            if (user != null) {
+                response.setStatus(200);
+                response.setUser(user);
+                response.setMessage("User profile found");
+            } else {
+                response.setStatus(404);
+                response.setMessage("User not found");
+            }
+            return response;
         }
 
     }

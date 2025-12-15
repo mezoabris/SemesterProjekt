@@ -1,6 +1,7 @@
 package dataaccess;
 import config.DatabaseConfig;
 import datatransfer.MediaRequest;
+import datatransfer.UserResponse;
 import models.MediaEntry;
 import models.User;
 
