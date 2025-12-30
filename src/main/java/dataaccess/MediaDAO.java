@@ -12,7 +12,7 @@ public class MediaDAO {
 
 
     public boolean createMedia(Connection con, MediaRequest media) throws SQLException {
-        String sql = "INSERT INTO media_entries(title, description, media_type, release_year, genre, age_restriction, creator) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO media_entries(title, description, media_type, release_year, genre, age_restriction, creator_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, media.getTitle());
@@ -21,7 +21,7 @@ public class MediaDAO {
             stmt.setInt(4, media.getReleaseYear());
             stmt.setArray(5, con.createArrayOf("text", media.getGenres().toArray()));
             stmt.setInt(6, media.getAgeRestriction());
-            stmt.setString(7, media.getCreator());
+            stmt.setInt(7, media.getCreatorId());
 
             return stmt.executeUpdate() > 0;
         }
@@ -43,13 +43,39 @@ public class MediaDAO {
         }
 
         media.setAgeRestriction(rs.getInt("age_restriction"));
-        media.setCreator(rs.getString("creator"));
+        media.setCreatorId(rs.getInt("creator_id"));
+
+        // Get creator username from joined users table
+        try {
+            String creatorUsername = rs.getString("creator_username");
+            media.setCreatorUsername(creatorUsername);
+        } catch (SQLException e) {
+            // Column doesn't exist, might need to fetch separately
+            media.setCreatorUsername(null);
+        }
+
+        try {
+            Double avgRating = rs.getDouble("average_rating");
+            if (!rs.wasNull()) {
+                media.setAverageRating(avgRating);
+            } else {
+                media.setAverageRating(0.0);
+            }
+        } catch (SQLException e) {
+            // Column doesn't exist in this query, that's okay
+            media.setAverageRating(0.0);
+        }
 
         return media;
     }
 
     public MediaRequest findById(Connection con, Integer mediaID) throws SQLException {
-        String sql = "SELECT * FROM media_entries WHERE id = ?";
+        String sql = "SELECT m.*, u.username AS creator_username, AVG(r.stars) AS average_rating " +
+                "FROM media_entries m " +
+                "LEFT JOIN users u ON m.creator_id = u.id " +
+                "LEFT JOIN ratings r ON m.id = r.media_id " +
+                "WHERE m.id = ? " +
+                "GROUP BY m.id, u.username";
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setInt(1, mediaID);
@@ -69,7 +95,6 @@ public class MediaDAO {
         int releaseYear = media.getReleaseYear();
         List<String> genre = media.getGenres();
         int ageRestriction = media.getAgeRestriction();
-        String creator = media.getCreator();
         MediaResponse response = new MediaResponse();
         String sql = "UPDATE media_entries SET title = ?, description = ?, " +
                                              "media_type = ?, release_year = ?, " +
@@ -119,7 +144,11 @@ public class MediaDAO {
     }
 
     public List<MediaRequest> findAll(Connection con) throws SQLException {
-        String sql = "SELECT * FROM media_entries";
+        String sql = "SELECT m.*, u.username AS creator_username, AVG(r.stars) AS average_rating " +
+                     "FROM media_entries m " +
+                     "LEFT JOIN users u ON m.creator_id = u.id " +
+                     "LEFT JOIN ratings r ON m.id = r.media_id " +
+                     "GROUP BY m.id, u.username";
         List<MediaRequest> results = new ArrayList<>();
 
         try (PreparedStatement stmt = con.prepareStatement(sql);
@@ -161,8 +190,9 @@ public class MediaDAO {
 
 
         StringBuilder sql = new StringBuilder(
-                "SELECT m.*, AVG(r.stars) AS avg_rating " +
+                "SELECT m.*, u.username AS creator_username, AVG(r.stars) AS average_rating " +
                         "FROM media_entries m " +
+                        "LEFT JOIN users u ON m.creator_id = u.id " +
                         "LEFT JOIN ratings r ON m.id = r.media_id " +
                         "WHERE "
         );
@@ -206,7 +236,7 @@ public class MediaDAO {
             }
             i++;
         }
-        sql.append(" GROUP BY m.id");
+        sql.append(" GROUP BY m.id, u.username");
         if(ratingFilter != null) {
             sql.append(" HAVING AVG(r.stars) >= ? ");
             paramValues.add(ratingFilter);
@@ -222,5 +252,29 @@ public class MediaDAO {
         }
         return sql;
 
+    }
+
+    public List<MediaRequest> findByGenres(Connection con, List<String> genres) throws SQLException {
+        if (genres == null || genres.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        String sql = "SELECT m.*, u.username AS creator_username, AVG(r.stars) AS average_rating " +
+                     "FROM media_entries m " +
+                     "LEFT JOIN users u ON m.creator_id = u.id " +
+                     "LEFT JOIN ratings r ON m.id = r.media_id " +
+                     "WHERE m.genre && ? " +
+                     "GROUP BY m.id, u.username " +
+                     "ORDER BY average_rating DESC";
+
+        List<MediaRequest> results = new ArrayList<>();
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setArray(1, con.createArrayOf("text", genres.toArray()));
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                results.add(mapResultSetToMediaRequest(rs));
+            }
+        }
+        return results;
     }
 }

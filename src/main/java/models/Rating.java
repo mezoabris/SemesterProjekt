@@ -11,6 +11,9 @@ public class Rating {
     int mediaID;
     @Getter
     @Setter
+    private int userID;
+    @Getter
+    @Setter
     private int stars;
     @Getter
     @Setter

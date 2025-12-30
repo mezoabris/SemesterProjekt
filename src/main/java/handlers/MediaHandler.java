@@ -45,7 +45,8 @@ public class MediaHandler implements HttpHandler {
     private void handleWrite(HttpExchange exchange, User user, String[] segments) throws IOException {
         try{
             MediaRequest request = HttpHelper.parseRequestBody(exchange, MediaRequest.class);
-            request.setCreator(user.getUsername());
+            request.setCreatorId(user.getUserID());
+            request.setCreatorUsername(user.getUsername());
             MediaResponse response = mediaService.upsertMedia(request, segments, user.getUsername());
             HttpHelper.sendJSONResponse(exchange, 200, response.getMessage());
         }catch (SQLException | IOException e ){

@@ -37,14 +37,43 @@ public class FavoriteDAO {
                      "JOIN favorites f ON m.id = f.media_id " +
                      "JOIN users u ON f.user_id = u.id " +
                      "WHERE u.id = ?";
-                     
+
         try (PreparedStatement stmt = con.prepareStatement(sql)){
-            stmt.setInt(1, userID); 
+            stmt.setInt(1, userID);
             ResultSet rs = stmt.executeQuery();
             while(rs.next()) {
                 favorites.add(mediaDAO.mapResultSetToMediaRequest(rs));
             }
         }
         return favorites;
+    }
+
+    public List<String> getFavoriteGenresByUser(Connection con, int userID) throws SQLException {
+        String sql = "SELECT DISTINCT UNNEST(m.genre) as genre " +
+                     "FROM favorites f " +
+                     "JOIN media_entries m ON f.media_id = m.id " +
+                     "WHERE f.user_id = ?";
+        List<String> genres = new ArrayList<>();
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, userID);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                genres.add(rs.getString("genre"));
+            }
+        }
+        return genres;
+    }
+
+    public List<Integer> getFavoriteMediaIdsByUser(Connection con, int userID) throws SQLException {
+        String sql = "SELECT media_id FROM favorites WHERE user_id = ?";
+        List<Integer> mediaIds = new ArrayList<>();
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, userID);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                mediaIds.add(rs.getInt("media_id"));
+            }
+        }
+        return mediaIds;
     }
 }

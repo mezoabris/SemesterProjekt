@@ -1,9 +1,6 @@
 package org.example;
 import com.sun.net.httpserver.HttpServer;
-import dataaccess.FavoriteDAO;
-import dataaccess.MediaDAO;
-import dataaccess.RatingDAO;
-import dataaccess.UserDAO;
+import dataaccess.*;
 import handlers.*;
 import config.DatabaseConfig;
 import helpers.ConnectionProvider;
@@ -30,7 +27,9 @@ public class Main {
             UserDAO userDAO = new UserDAO();
             MediaDAO mediaDAO = new MediaDAO();
             RatingDAO ratingDAO = new RatingDAO();
-            FavoriteDAO favoriteDAO = new FavoriteDAO(); // Created
+            FavoriteDAO favoriteDAO = new FavoriteDAO();
+            LeaderboardDAO leaderboardDAO = new LeaderboardDAO();
+            RatingLikeDAO ratingLikeDAO = new RatingLikeDAO();
             ConnectionProvider connectionProvider = new DefaultConnectionProvider();
             GenreValidation validator = new GenreValidation();
             AuthService authService = new AuthService(hasher, userDAO, connectionProvider);
@@ -39,8 +38,10 @@ public class Main {
             MediaService mediaService = new MediaService(mediaDAO, connectionProvider);
             UserService userService = new UserService(validator, userDAO, ratingDAO, connectionProvider);
             FavoriteService favoriteService = new FavoriteService(favoriteDAO, mediaDAO, connectionProvider);
-            RecommendationService recommendationService = new RecommendationService();
-            RatingService ratingService = new RatingService(ratingDAO, connectionProvider);
+            RecommendationService recommendationService = new RecommendationService(ratingDAO, favoriteDAO, mediaDAO, connectionProvider);
+            RatingService ratingService = new RatingService(ratingDAO, mediaDAO, connectionProvider);
+            LeaderboardService leaderboardService = new LeaderboardService(connectionProvider, leaderboardDAO);
+            RatingLikeService ratingLikeService = new RatingLikeService(userDAO, mediaDAO, ratingDAO, ratingLikeDAO, connectionProvider);
 
             // Register handlers with their routes
             server.createContext("/api/users/register", new RegisterHandler(authService));
@@ -50,8 +51,9 @@ public class Main {
             server.createContext("/api/favorites", new FavoriteHandler(favoriteService));
             System.out.println("test");
 
-            server.createContext("/api/ratings", new RatingHandler(ratingService));
+            server.createContext("/api/ratings", new RatingHandler(ratingService, ratingLikeService));
             server.createContext("/api/recommendations", new RecommendationHandler(recommendationService));
+            server.createContext("/api/leaderboard", new LeaderboardHandler(leaderboardService));
 
 
             // Start server

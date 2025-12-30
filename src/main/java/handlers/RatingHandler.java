@@ -8,16 +8,21 @@ import helpers.HttpHelper;
 import helpers.TokenHelper;
 import models.Rating;
 import models.User;
+import service.RatingLikeService;
 import service.RatingService;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 public class RatingHandler implements HttpHandler {
 
     private final RatingService ratingService;
-    public RatingHandler(RatingService ratingService){
+    private final RatingLikeService ratingLikeService;
+    public RatingHandler(RatingService ratingService, RatingLikeService ratingLikeService){
         this.ratingService = ratingService;
+        this.ratingLikeService = ratingLikeService;
     }
 
     @Override
@@ -29,6 +34,7 @@ public class RatingHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
         String method = exchange.getRequestMethod();
         String[] segments =path.split("/");
+        System.out.println(Arrays.toString(segments));
         String userAction = "";
         int ID = 0;
         if(segments.length > 2){
@@ -39,9 +45,11 @@ public class RatingHandler implements HttpHandler {
         User user = TokenHelper.requireValidToken(exchange);
         if(user == null) HttpHelper.sendJSONResponse(exchange, 400, "Invalid token");
         try{
+            System.out.println(method);
             switch (method) {
                 case "GET" -> handleGet(exchange, user);
                 case "POST", "PUT" -> handleWrite(exchange, user, userAction, ID);
+                case "DELETE" -> handleDel(exchange, user,userAction ,ID);
             }
         }catch(Exception e){
             HttpHelper.sendJSONResponse(exchange, 500, "Internal Server Error");
@@ -51,21 +59,43 @@ public class RatingHandler implements HttpHandler {
 
     }
 
-    private void handleGet(HttpExchange exchange, User user) {
+    private void handleDel(HttpExchange exchange, User user, String userAction, int ID) throws IOException, SQLException{
+        RatingResponse response = new RatingResponse();
+        try{
+            System.out.println(userAction);
+            System.out.println("ID: " + ID);
+            System.out.println("user.getUserID(): "+ user.getUserID());
+            switch (userAction){
+                case "like" -> response = ratingLikeService.deleteLike(ID, user.getUsername());
+                case "rate" -> response = ratingService.removeRating(ID, user.getUserID());
+            }
+            HttpHelper.sendJSONResponse(exchange, response.getStatus(), response.getMessage());
+        }catch(Exception e){
+            HttpHelper.sendTextResponse(exchange, 500, e.getMessage());
+        }
 
     }
 
+    private void handleGet(HttpExchange exchange, User user) throws IOException, SQLException {
+        String path = exchange.getRequestURI().getPath();
+        String[] segments = path.split("/");
+
+        if(segments.length > 2) {
+            int mediaID = Integer.parseInt(segments[segments.length - 1]);
+            HttpHelper.sendJSONResponse(exchange, 200, ratingService.findAllRatings(mediaID));
+        } else {
+            HttpHelper.sendJSONResponse(exchange, 400, "Media ID is required");
+        }
+    }
+
     private void handleWrite(HttpExchange exchange, User user, String userAction, int ID) throws IOException {
-        /*
-        if the action is rating, then the value at segments[segments.length-2]
-        is referring to the mediaID, in other cases like liking a rating it refers to the rating_id
-         */
+
         System.out.println("Handling write");
         try{
             switch (userAction) {
                 case "rate"-> handleRate(exchange, ID, user);
                 case "like"-> handleLike(exchange, ID, user);
-                case "confirm"->handleConfirm(exchange, ID, user);
+                case "approve" -> handleApprove(exchange, ID, user);
             }
         }catch(Exception e){
             HttpHelper.sendTextResponse(exchange, 500, e.getMessage());
@@ -73,11 +103,17 @@ public class RatingHandler implements HttpHandler {
 
     }
 
-    private void handleConfirm(HttpExchange exchange, int id, User user) {
-
+    private void handleApprove(HttpExchange exchange, int ratingID, User user) throws IOException, SQLException {
+        RatingResponse response = ratingService.approveRating(ratingID, user.getUsername());
+        HttpHelper.sendJSONResponse(exchange, response.getStatus(), response.getMessage());
     }
 
-    private void handleLike(HttpExchange exchange, int id, User user) {
+
+
+    private void handleLike(HttpExchange exchange, int id, User user) throws SQLException, IOException {
+        RatingResponse response = ratingLikeService.likeRating(id, user.getUsername());
+        HttpHelper.sendJSONResponse(exchange, response.getStatus(), response.getMessage());
+
     }
 
     private void handleRate(HttpExchange exchange, int mediaID, User user) throws IOException, SQLException {

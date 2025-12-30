@@ -4,6 +4,7 @@ import dataaccess.UserDAO;
 import datatransfer.*;
 import helpers.ConnectionProvider;
 import helpers.GenreValidation;
+import helpers.TokenHelper;
 import models.MediaEntry;
 import models.User;
 import helpers.PasswordHasher;
@@ -106,7 +107,9 @@ public class UserService {
                     return userResponse;
                 }
                 curr =  userDAO.editUser(conn, curr, "username", changes.getUsername());
+                userDAO.updateToken(conn, changes.getUsername(), TokenHelper.generateToken(changes.getUsername()));
             }
+
             userResponse.setStatus(200);
             userResponse.setMessage("Profile updated successfully");
 

@@ -88,7 +88,7 @@ public class MediaService {
                 con.rollback();
                 return res;
             }
-            if(!existingMedia.getCreator().equals(currentUsername)){
+            if(!existingMedia.getCreatorUsername().equals(currentUsername)){
                 res.setStatus(403);
                 res.setMessage("Your are not the owner of this media");
                 con.rollback();
@@ -138,7 +138,7 @@ public class MediaService {
                 con.rollback();
                 return response;
             }
-            if(!existingMedia.getCreator().equals(currentUsername)){
+            if(!existingMedia.getCreatorUsername().equals(currentUsername)){
                 response.setStatus(403);
                 response.setMessage("Your are not the owner of this media");
                 con.rollback();
@@ -166,9 +166,9 @@ public class MediaService {
 
 
     private void validateRequest(MediaRequest request) {
-        if (isNullOrBlank(request.getCreator(), request.getTitle(),
+        if (request.getCreatorId() == null || isNullOrBlank(request.getTitle(),
                 request.getDescription(), request.getMediaType())) {
-            throw new IllegalArgumentException("Missing required string fields");
+            throw new IllegalArgumentException("Missing required fields");
         }
 
 
