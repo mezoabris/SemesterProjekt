@@ -42,7 +42,7 @@ public class RecommendationService {
                     .map(rating -> rating.getMediaID())
                     .collect(Collectors.toSet());
 
-            Set<Integer> favoriteMediaIds = new HashSet<>(favoriteDAO.getFavoriteMediaIds(con, userID));
+            Set<Integer> favoriteMediaIds = new HashSet<>(favoriteDAO.getFavoriteMediaIdsByUser(con, userID));
 
             List<MediaRequest> recommendations = candidateMedia.stream()
                     .filter(media -> !ratedMediaIds.contains(getMediaId(media)))
@@ -59,10 +59,6 @@ public class RecommendationService {
         } catch (SQLException e) {
             e.printStackTrace();
             return new RecommendationResponse(500, "Error generating recommendations: " + e.getMessage());
-        } finally {
-            if (con != null) {
-                connectionProvider.releaseConnection(con);
-            }
         }
     }
 
