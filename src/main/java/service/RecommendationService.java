@@ -59,10 +59,18 @@ public class RecommendationService {
         } catch (SQLException e) {
             e.printStackTrace();
             return new RecommendationResponse(500, "Error generating recommendations: " + e.getMessage());
+        } finally {
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
     private Integer getMediaId(MediaRequest media) {
-        return media.hashCode();
+        return media.getMediaId();
     }
 }

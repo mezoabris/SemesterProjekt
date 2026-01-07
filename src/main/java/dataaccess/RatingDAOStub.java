@@ -28,7 +28,7 @@ public class RatingDAOStub extends RatingDAO {
         ratings.add(rating2);
     }
 
-    @Override
+
     public List<RatingRequest> getUserRatings(Connection con, int userID) throws SQLException {
         List<RatingRequest> ratingRequests = new ArrayList<>();
         for (Rating rating : ratings) {

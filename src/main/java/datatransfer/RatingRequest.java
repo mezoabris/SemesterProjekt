@@ -33,5 +33,8 @@ public class RatingRequest {
         this.createdAt = createdAt;
     }
 
+    public RatingRequest() {
+    }
+
 
 }

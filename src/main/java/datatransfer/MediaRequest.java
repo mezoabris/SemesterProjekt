@@ -5,6 +5,8 @@ import java.util.List;
 
 public class MediaRequest {
     @Getter @Setter
+    Integer mediaId;
+    @Getter @Setter
     Integer creatorId;
     @Getter @Setter
     String creatorUsername; // For display purposes

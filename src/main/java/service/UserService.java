@@ -6,6 +6,7 @@ import helpers.ConnectionProvider;
 import helpers.GenreValidation;
 import helpers.TokenHelper;
 import models.MediaEntry;
+import models.Rating;
 import models.User;
 import helpers.PasswordHasher;
 
@@ -37,13 +38,25 @@ public class UserService {
     public UserResponse findUserProfile(int userID) throws SQLException {
         try(Connection conn = connectionProvider.getConnection()){
             User user = userDAO.findByUserID(conn, userID);
-            List<RatingRequest> ratings = ratingDAO.getUserRatings(conn, userID);
+            List<Rating> ratings = ratingDAO.getRatingsByUser(conn, userID);
             double ratingsSum = 0;
-            for(RatingRequest rating: ratings){
+            for(Rating rating: ratings){
                 ratingsSum+= rating.getStars();
             }
+
+            // Convert Rating to RatingRequest
+            List<RatingRequest> ratingRequests = new ArrayList<>();
+            for(Rating rating : ratings) {
+                RatingRequest ratingRequest = new RatingRequest();
+                ratingRequest.setStars(rating.getStars());
+                ratingRequest.setComment(rating.getComment());
+                ratingRequest.setCreatedAt(rating.getCreatedAt());
+                ratingRequest.setCommentApproved(rating.isCommentApproved());
+                ratingRequests.add(ratingRequest);
+            }
+
             UserResponse response = new UserResponse();
-            response.setRatings(ratings);
+            response.setRatings(ratingRequests);
             response.setTotalRatings(ratings.size());
             if(!ratings.isEmpty()){
                 response.setAverageScore(ratingsSum / ratings.size());

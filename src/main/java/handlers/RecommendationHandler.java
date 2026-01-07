@@ -24,12 +24,12 @@ public class RecommendationHandler implements HttpHandler {
         if ("GET".equals(method)) {
             handleGetRecommendations(exchange, user);
         } else {
-            HttpHelper.sendResponse(exchange, 405, "Method not allowed");
+            HttpHelper.sendJSONResponse(exchange, 405, "Method not allowed");
         }
     }
 
     private void handleGetRecommendations(HttpExchange exchange, User user) throws IOException {
-        RecommendationResponse response = recommendationService.getRecommendations(user.getId());
-        HttpHelper.sendJsonResponse(exchange, response.getStatus(), response);
+        RecommendationResponse response = recommendationService.getRecommendations(user.getUserID());
+        HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);
     }
 }
