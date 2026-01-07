@@ -67,7 +67,7 @@ public class RatingService {
     public RatingResponse approveRating(int ratingID, String approverUsername) throws SQLException {
         RatingResponse response = new RatingResponse();
         try (Connection con = connectionProvider.getConnection()) {
-            con.setAutoCommit(false); // Start transaction
+            con.setAutoCommit(false);
 
             Rating rating = ratingDAO.findById(con, ratingID);
             if (rating == null) {
@@ -77,7 +77,6 @@ public class RatingService {
                 return response;
             }
 
-            // Use MediaDAO directly with the SAME connection
             MediaRequest media = mediaDAO.findById(con, rating.getMediaID());
             
             if (media == null) {

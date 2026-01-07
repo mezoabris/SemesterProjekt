@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class AuthServiceTest {
     private UserDAO userDAO;
     private PasswordHasher hasher;
-    private ConnectionProvider connectionProvider;
     private Connection conn;
     private AuthService authService;
 
@@ -30,7 +29,7 @@ class AuthServiceTest {
     void setup() throws SQLException {
         userDAO = mock(UserDAO.class);
         hasher = mock(PasswordHasher.class);
-        connectionProvider = mock(ConnectionProvider.class);
+        ConnectionProvider connectionProvider = mock(ConnectionProvider.class);
         conn = mock(Connection.class);
 
         when(connectionProvider.getConnection()).thenReturn(conn);
@@ -55,9 +54,11 @@ class AuthServiceTest {
     @Test
     void registerExistingUser() throws SQLException {
         AuthRequest req = new AuthRequest("name", "password");
-        when(userDAO.findByUsername(eq(conn),eq( "name"))).thenReturn(new User());
+        when(userDAO.findByUsername(eq(conn), eq("name"))).thenReturn(new User());
 
-        assertThrows(SQLException.class, () -> authService.register(req));
+        String token = authService.register(req);
+
+        assertNull(token); // Should return null when user already exists
     }
 
     @Test

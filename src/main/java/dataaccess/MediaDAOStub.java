@@ -15,9 +15,11 @@ public class MediaDAOStub extends MediaDAO {
     public MediaDAOStub() {
         MediaRequest media1 = new MediaRequest(1, "Inception", "Dream heist", "movie", 2010, Arrays.asList("sci-fi", "action"), 13);
         media1.setMediaId(nextId++);
+        media1.setCreatorUsername("test1");
 
         MediaRequest media2 = new MediaRequest(1, "Breaking Bad", "Chemistry teacher", "series", 2008, Arrays.asList("drama", "crime"), 18);
         media2.setMediaId(nextId++);
+        media2.setCreatorUsername("test1");
 
         mediaList.add(media1);
         mediaList.add(media2);

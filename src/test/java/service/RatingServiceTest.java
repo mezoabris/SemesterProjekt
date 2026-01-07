@@ -18,11 +18,10 @@ import static org.mockito.Mockito.when;
 
 class RatingServiceTest {
     private RatingService ratingService;
-    private RatingDAOStub ratingStub;
 
     @BeforeEach
     void setup() throws SQLException {
-        ratingStub = new RatingDAOStub();
+        RatingDAOStub ratingStub = new RatingDAOStub();
         MediaDAOStub mediaStub = new MediaDAOStub();
         ConnectionProvider provider = mock(ConnectionProvider.class);
         when(provider.getConnection()).thenReturn(mock(Connection.class));
@@ -31,47 +30,38 @@ class RatingServiceTest {
     }
 
     @Test
-    void testCreateRating_success() throws SQLException {
+    void testSaveRating_createNew() throws SQLException {
         Rating newRating = new Rating(4, "Nice movie", new Timestamp(System.currentTimeMillis()));
-        newRating.setMediaID(1);
+        newRating.setMediaID(3);
 
-        RatingResponse response = ratingService.createRating(1, newRating);
+        RatingResponse response = ratingService.saveRating(1, newRating);
 
         assertEquals(200, response.getStatus());
         assertEquals("Successfully created rating", response.getMessage());
     }
 
     @Test
-    void testUpdateRating_success() throws SQLException {
+    void testSaveRating_updateExisting() throws SQLException {
         Rating updatedRating = new Rating(5, "Updated comment", new Timestamp(System.currentTimeMillis()));
+        updatedRating.setMediaID(1);
 
-        RatingResponse response = ratingService.updateRating(1, updatedRating, 1);
+        RatingResponse response = ratingService.saveRating(1, updatedRating);
 
         assertEquals(200, response.getStatus());
         assertEquals("Successfully updated rating", response.getMessage());
     }
 
     @Test
-    void testUpdateRating_notFound() throws SQLException {
-        Rating updatedRating = new Rating(5, "Comment", new Timestamp(System.currentTimeMillis()));
+    void testApproveRating_success() throws SQLException {
+        RatingResponse response = ratingService.approveRating(1, "test1");
 
-        RatingResponse response = ratingService.updateRating(999, updatedRating, 1);
-
-        assertEquals(404, response.getStatus());
+        assertEquals(200, response.getStatus());
     }
 
     @Test
-    void testFindRatingByUserAndMedia_found() throws SQLException {
-        Rating rating = ratingService.findRatingByUserAndMedia(1, 1);
+    void testRemoveRating_success() throws SQLException {
+        RatingResponse response = ratingService.removeRating(1, 1);
 
-        assertNotNull(rating);
-        assertEquals(1, rating.getMediaID());
-    }
-
-    @Test
-    void testFindRatingByUserAndMedia_notFound() throws SQLException {
-        Rating rating = ratingService.findRatingByUserAndMedia(1, 999);
-
-        assertNull(rating);
+        assertEquals(200, response.getStatus());
     }
 }

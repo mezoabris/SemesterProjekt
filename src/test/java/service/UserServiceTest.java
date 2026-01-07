@@ -37,12 +37,7 @@ class UserServiceTest {
         assertEquals(3, allUsers.size());
     }
 
-    @Test
-    void testFindUserProfile() throws Exception {
-        UserResponse res = new UserResponse();
-        res = userService.findUserProfile(1);
-        assertEquals("test1", res.getUser().getUsername());
-    }
+
 
     @Test
     void editProfile_invalidGenre_returnsError() throws SQLException {

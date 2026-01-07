@@ -1,6 +1,6 @@
 package dataaccess;
 
-import datatransfer.FavoriteResponse;
+import datatransfer.MediaRequest;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -17,38 +17,34 @@ public class FavoriteDAOStub extends FavoriteDAO {
     }
 
     @Override
-    public FavoriteResponse addFavorite(Connection con, int userID, int mediaID) throws SQLException {
-        FavoriteResponse response = new FavoriteResponse();
-
+    public boolean addFavorite(Connection con, int mediaID, int userID) throws SQLException {
         if (!userFavorites.containsKey(userID)) {
             userFavorites.put(userID, new HashSet<>());
         }
 
         Set<Integer> favorites = userFavorites.get(userID);
         if (favorites.contains(mediaID)) {
-            response.setStatus(409);
-            response.setMessage("Already in favorites");
+            return false; // Already exists
         } else {
             favorites.add(mediaID);
-            response.setStatus(200);
-            response.setMessage("Added to favorites");
+            return true; // Successfully added
         }
-        return response;
     }
 
     @Override
-    public FavoriteResponse removeFavorite(Connection con, int userID, int mediaID) throws SQLException {
-        FavoriteResponse response = new FavoriteResponse();
-
+    public boolean removeFavorite(Connection con, int mediaID, int userID) throws SQLException {
         if (!userFavorites.containsKey(userID) || !userFavorites.get(userID).contains(mediaID)) {
-            response.setStatus(404);
-            response.setMessage("Not in favorites");
+            return false; // Not found
         } else {
             userFavorites.get(userID).remove(mediaID);
-            response.setStatus(200);
-            response.setMessage("Removed from favorites");
+            return true; // Successfully removed
         }
-        return response;
+    }
+
+    @Override
+    public List<MediaRequest> findFavoritesByUserID(Connection con, int userID) throws SQLException {
+        // Return empty list for stub - we only need this for the check in addFavorite
+        return new ArrayList<>();
     }
 
     @Override

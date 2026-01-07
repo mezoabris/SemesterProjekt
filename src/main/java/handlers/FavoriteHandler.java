@@ -34,7 +34,7 @@ public class FavoriteHandler implements HttpHandler {
 
         try {
             User user = TokenHelper.requireValidToken(exchange);
-            if (user == null) return; // Response handled in TokenHelper
+            if (user == null) return;
 
             if (segments.length == 3 && method.equals("GET")) {
                 handleGetFavorites(exchange, user);

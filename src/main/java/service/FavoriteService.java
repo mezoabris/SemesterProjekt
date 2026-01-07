@@ -59,7 +59,7 @@ public class FavoriteService {
                 conn.commit();
             } else {
                 response.setStatus(409);
-                response.setMessage("Already in favorites");
+                response.setMessage("Please try again");
                 conn.rollback();
             }
         } catch (SQLException e) {

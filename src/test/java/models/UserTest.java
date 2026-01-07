@@ -10,7 +10,7 @@ class UserTest {
         User user = new User("testuser", "hashedpass");
 
         assertEquals("testuser", user.getUsername());
-        assertEquals("hashedpass", user.getPasswordHash());
+        assertEquals("hashedpass", user.getPassword());
     }
 
     @Test
@@ -18,13 +18,13 @@ class UserTest {
         User user = new User();
         user.setUserID(123);
         user.setUsername("john");
-        user.setPasswordHash("hash123");
+        user.setPassword("hash123");
         user.setToken("token123");
         user.setFavoriteGenre("sci-fi");
 
         assertEquals(123, user.getUserID());
         assertEquals("john", user.getUsername());
-        assertEquals("hash123", user.getPasswordHash());
+        assertEquals("hash123", user.getPassword());
         assertEquals("token123", user.getToken());
         assertEquals("sci-fi", user.getFavoriteGenre());
     }

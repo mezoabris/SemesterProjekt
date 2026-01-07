@@ -2,7 +2,7 @@ package service;
 
 import dataaccess.FavoriteDAOStub;
 import dataaccess.MediaDAOStub;
-import datatransfer.FavoriteResponse;
+import datatransfer.MediaResponse;
 import helpers.ConnectionProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ class FavoriteServiceTest {
 
     @Test
     void testAddFavorite_success() throws SQLException {
-        FavoriteResponse response = favoriteService.addFavorite(1, 3);
+        MediaResponse response = favoriteService.addFavorite(1, 3);
 
         assertEquals(200, response.getStatus());
         assertEquals("Added to favorites", response.getMessage());
@@ -37,7 +37,7 @@ class FavoriteServiceTest {
 
     @Test
     void testAddFavorite_alreadyExists() throws SQLException {
-        FavoriteResponse response = favoriteService.addFavorite(1, 1);
+        MediaResponse response = favoriteService.addFavorite(1, 1);
 
         assertEquals(409, response.getStatus());
         assertEquals("Already in favorites", response.getMessage());
@@ -45,7 +45,7 @@ class FavoriteServiceTest {
 
     @Test
     void testRemoveFavorite_success() throws SQLException {
-        FavoriteResponse response = favoriteService.removeFavorite(1, 1);
+        MediaResponse response = favoriteService.removeFavorite(1, 1);
 
         assertEquals(200, response.getStatus());
         assertEquals("Removed from favorites", response.getMessage());
@@ -53,9 +53,9 @@ class FavoriteServiceTest {
 
     @Test
     void testRemoveFavorite_notFound() throws SQLException {
-        FavoriteResponse response = favoriteService.removeFavorite(1, 999);
+        MediaResponse response = favoriteService.removeFavorite(1, 999);
 
         assertEquals(404, response.getStatus());
-        assertEquals("Not in favorites", response.getMessage());
+        assertEquals("Favorite not found", response.getMessage());
     }
 }

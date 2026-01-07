@@ -48,22 +48,6 @@ public class FavoriteDAO {
         return favorites;
     }
 
-    public List<String> getFavoriteGenresByUser(Connection con, int userID) throws SQLException {
-        String sql = "SELECT DISTINCT UNNEST(m.genre) as genre " +
-                     "FROM favorites f " +
-                     "JOIN media_entries m ON f.media_id = m.id " +
-                     "WHERE f.user_id = ?";
-        List<String> genres = new ArrayList<>();
-        try (PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setInt(1, userID);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                genres.add(rs.getString("genre"));
-            }
-        }
-        return genres;
-    }
-
     public List<Integer> getFavoriteMediaIdsByUser(Connection con, int userID) throws SQLException {
         String sql = "SELECT media_id FROM favorites WHERE user_id = ?";
         List<Integer> mediaIds = new ArrayList<>();

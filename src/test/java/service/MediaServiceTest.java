@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.MediaDAOStub;
-import dataaccess.UserDAOStub;
 import datatransfer.MediaRequest;
 import datatransfer.MediaResponse;
 import helpers.ConnectionProvider;
@@ -10,8 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -19,47 +17,61 @@ import static org.mockito.Mockito.when;
 
 class MediaServiceTest {
     private MediaService mediaService;
-    private MediaDAOStub mediaStub;
 
     @BeforeEach
     void setup() throws SQLException {
-        mediaStub = new MediaDAOStub();
-        UserDAOStub userStub = new UserDAOStub();
+        MediaDAOStub mediaStub = new MediaDAOStub();
         ConnectionProvider provider = mock(ConnectionProvider.class);
         when(provider.getConnection()).thenReturn(mock(Connection.class));
 
-        mediaService = new MediaService(mediaStub, userStub, provider);
+        mediaService = new MediaService(mediaStub, provider);
     }
 
     @Test
-    void testCreateMedia() throws SQLException {
+    void testCreateMedia_success() {
         MediaRequest newMedia = new MediaRequest(1, "The Matrix", "Hacker discovers reality", "movie", 1999, Arrays.asList("sci-fi", "action"), 16);
+        newMedia.setCreatorUsername("test1");
 
-        boolean result = mediaService.createMedia(newMedia);
+        MediaResponse response = mediaService.createMedia(newMedia);
 
-        assertTrue(result);
+        assertEquals(200, response.getStatus());
+        assertEquals("Media created successfully", response.getMessage());
     }
 
     @Test
-    void testFindMediaById_found() throws SQLException {
-        MediaRequest media = mediaService.getMedia(1);
+    void testGetMediaById_found() throws SQLException {
+        MediaResponse response = mediaService.getMedia(1, new HashMap<>());
 
-        assertNotNull(media);
-        assertEquals("Inception", media.getTitle());
+        assertEquals(200, response.getStatus());
+        assertEquals("Media found", response.getMessage());
+        assertNotNull(response.getRequests());
+        assertEquals(1, response.getRequests().size());
+        assertEquals("Inception", response.getRequests().getFirst().getTitle());
     }
 
     @Test
-    void testFindMediaById_notFound() throws SQLException {
-        MediaRequest media = mediaService.getMedia(999);
+    void testGetMediaById_notFound() throws SQLException {
+        MediaResponse response = mediaService.getMedia(999, new HashMap<>());
 
-        assertNull(media);
+        assertEquals(404, response.getStatus());
+        assertEquals("No media found", response.getMessage());
+    }
+
+    @Test
+    void testGetAllMedia() throws SQLException {
+        MediaResponse response = mediaService.getMedia(null, new HashMap<>());
+
+        assertEquals(200, response.getStatus());
+        assertNotNull(response.getRequests());
+        assertEquals(2, response.getRequests().size());
     }
 
     @Test
     void testUpdateMedia_success() throws SQLException {
-        MediaRequest updatedMedia = new MediaRequest(1, "Inception Updated", "Updated description", "movie", 2010, Arrays.asList("sci-fi"), 13);
+        MediaRequest updatedMedia = new MediaRequest(1, "Inception Updated", "Updated description", "movie", 2010, List.of("sci-fi"), 13);
+        updatedMedia.setCreatorUsername("test1");
 
-        MediaResponse response = mediaService.editMedia(1, updatedMedia);
+        MediaResponse response = mediaService.updateMediaByID(1, updatedMedia, "test1");
 
         assertEquals(200, response.getStatus());
         assertEquals("Successfully updated media", response.getMessage());
@@ -67,16 +79,17 @@ class MediaServiceTest {
 
     @Test
     void testUpdateMedia_notFound() throws SQLException {
-        MediaRequest updatedMedia = new MediaRequest(1, "Test", "Test", "movie", 2020, Arrays.asList("drama"), 12);
+        MediaRequest updatedMedia = new MediaRequest(1, "Test", "Test", "movie", 2020, List.of("drama"), 12);
 
-        MediaResponse response = mediaService.editMedia(999, updatedMedia);
+        MediaResponse response = mediaService.updateMediaByID(999, updatedMedia, "test1");
 
         assertEquals(404, response.getStatus());
+        assertEquals("Media not found!", response.getMessage());
     }
 
     @Test
     void testDeleteMedia_success() throws SQLException {
-        MediaResponse response = mediaService.deleteMedia(1, 1);
+        MediaResponse response = mediaService.deleteMediaByID(1, "test1");
 
         assertEquals(200, response.getStatus());
         assertEquals("Successfully deleted media", response.getMessage());
@@ -84,16 +97,9 @@ class MediaServiceTest {
 
     @Test
     void testDeleteMedia_notFound() throws SQLException {
-        MediaResponse response = mediaService.deleteMedia(999, 1);
+        MediaResponse response = mediaService.deleteMediaByID(999, "test1");
 
         assertEquals(404, response.getStatus());
-    }
-
-    @Test
-    void testGetAllMedia() throws SQLException {
-        List<MediaRequest> allMedia = mediaService.getAllMedia();
-
-        assertNotNull(allMedia);
-        assertEquals(2, allMedia.size());
+        assertEquals("Media not found!", response.getMessage());
     }
 }
