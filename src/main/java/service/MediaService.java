@@ -26,7 +26,7 @@ public class MediaService {
         MediaResponse response = new MediaResponse();
         try(Connection con = connectionProvider.getConnection()){
 
-            // Handle filtering by params (future implementation)
+
             if(!params.isEmpty()){
                 List<MediaRequest> filteredMedia =  mediaDAO.findByFilter(con, params);
                 if(filteredMedia.isEmpty()){

@@ -31,19 +31,30 @@ public class RatingLikeDAO {
         }
         return response;
     }
-    public RatingResponse deleteLike(Connection con, int rating_id, int user_id) throws SQLException {
-        String sql = "DELETE FROM rating_likes WHERE rating_id = ? AND user_id = ?";
+    public Integer getLikeOwner(Connection con, int like_id) throws SQLException {
+        String sql = "SELECT user_id FROM rating_likes WHERE id = ?";
+        try(PreparedStatement stmt = con.prepareStatement(sql)){
+            stmt.setInt(1, like_id);
+            ResultSet rs = stmt.executeQuery();
+            if(rs.next()){
+                return rs.getInt("user_id");
+            }
+            return null; // Like not found
+        }
+    }
+
+    public RatingResponse deleteLike(Connection con, int like_id) throws SQLException {
+        String sql = "DELETE FROM rating_likes WHERE id = ?";
         RatingResponse response = new RatingResponse();
         try(PreparedStatement stmt = con.prepareStatement(sql)){
-            stmt.setInt(1, rating_id);
-            stmt.setInt(2, user_id);
+            stmt.setInt(1, like_id);
             int affected = stmt.executeUpdate();
             if(affected > 0){
                 response.setStatus(200);
                 response.setMessage("Successfully removed like from rating");
             }else{
                 response.setStatus(404);
-                response.setMessage("Like not found or already removed");
+                response.setMessage("Like not found");
             }
         }catch (SQLException e){
             throw new RuntimeException(e);

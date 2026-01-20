@@ -49,16 +49,30 @@ public class RatingLikeService {
         }
 
     }
-    public RatingResponse deleteLike(int rating_id, String likerUsername) throws SQLException {
+    public RatingResponse deleteLike(int like_id, String likerUsername) throws SQLException {
         RatingResponse response = new RatingResponse();
         try(Connection con = connectionProvider.getConnection()){
             con.setAutoCommit(false);
-            response = validateRequest(con, rating_id, likerUsername);
-            if(response.getStatus() != 200){
+
+            Integer ownerId = ratingLikeDAO.getLikeOwner(con, like_id);
+            if(ownerId == null){
+                response.setStatus(404);
+                response.setMessage("Like not found");
+                con.rollback();
                 return response;
             }
+
+            // Check authorization
             User liker = userDAO.findByUsername(con, likerUsername);
-            response = ratingLikeDAO.deleteLike(con, rating_id, liker.getUserID());
+            if(ownerId != liker.getUserID()){
+                response.setStatus(403);
+                response.setMessage("Forbidden: You can only delete your own likes");
+                con.rollback();
+                return response;
+            }
+
+            // Delete the like
+            response = ratingLikeDAO.deleteLike(con, like_id);
 
             if(response.getStatus() == 200){
                 con.commit();

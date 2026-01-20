@@ -33,17 +33,30 @@ public class RatingHandler implements HttpHandler {
      */
         String path = exchange.getRequestURI().getPath();
         String method = exchange.getRequestMethod();
-        String[] segments =path.split("/");
+        String[] segments = path.split("/");
         System.out.println(Arrays.toString(segments));
         String userAction = "";
         int ID = 0;
-        if(segments.length > 2){
-            userAction = segments[segments.length - 1];
-            ID = Integer.parseInt(segments[segments.length - 2]);
+        // Parse: /api/ratings/{id} or /api/ratings/{id}/{action}
+        if(segments.length >= 4) {
+            try {
+                ID = Integer.parseInt(segments[3]); // Always try to parse 4th segment as ID
+                if(segments.length == 5) {
+                    userAction = segments[4]; // like, approve, rate
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid ID format: " + segments[3]);
+                HttpHelper.sendJSONResponse(exchange, 400, "Invalid rating ID");
+                return;
+            }
         }
+        System.out.println("Parsed - ID: " + ID + ", Action: " + userAction);
 
         User user = TokenHelper.requireValidToken(exchange);
-        if(user == null) HttpHelper.sendJSONResponse(exchange, 400, "Invalid token");
+        if(user == null) {
+            HttpHelper.sendJSONResponse(exchange, 400, "Invalid token");
+            return;
+        }
         try{
             System.out.println(method);
             switch (method) {
@@ -65,7 +78,9 @@ public class RatingHandler implements HttpHandler {
             System.out.println(userAction);
             System.out.println("ID: " + ID);
             System.out.println("user.getUserID(): "+ user.getUserID());
+            System.out.println(userAction);
             switch (userAction){
+
                 case "like" -> response = ratingLikeService.deleteLike(ID, user.getUsername());
                 case "rate" -> response = ratingService.removeRating(ID, user.getUserID());
             }
@@ -79,6 +94,7 @@ public class RatingHandler implements HttpHandler {
     private void handleGet(HttpExchange exchange, User user) throws IOException, SQLException {
         String path = exchange.getRequestURI().getPath();
         String[] segments = path.split("/");
+        System.out.println("entering handleget");
 
         if(segments.length > 2) {
             int mediaID = Integer.parseInt(segments[segments.length - 1]);

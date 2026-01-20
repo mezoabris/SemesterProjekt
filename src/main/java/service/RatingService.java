@@ -34,6 +34,12 @@ public class RatingService {
         return res;
     }
 
+    public List<Rating> findRatingsByUser(int userID) throws SQLException {
+        try(Connection con = connectionProvider.getConnection()){
+            return ratingDAO.getRatingsByUser(con, userID);
+        }
+    }
+
     public RatingResponse saveRating(int userID, Rating ratingRequest) throws SQLException {
         System.out.println("rating service reached");
         try(Connection con = connectionProvider.getConnection()){

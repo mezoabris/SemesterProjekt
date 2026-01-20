@@ -40,7 +40,7 @@ class FavoriteServiceTest {
         MediaResponse response = favoriteService.addFavorite(1, 1);
 
         assertEquals(409, response.getStatus());
-        assertEquals("Already in favorites", response.getMessage());
+        assertEquals("Please try again", response.getMessage());
     }
 
     @Test

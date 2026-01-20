@@ -8,6 +8,7 @@ import helpers.HttpHelper;
 import helpers.PasswordHasher;
 import helpers.TokenHelper;
 import models.MediaEntry;
+import models.Rating;
 import models.User;
 import service.AuthService;
 import service.MediaService;
@@ -135,9 +136,10 @@ public class UserHandler implements HttpHandler {
         HttpHelper.sendJSONResponse(exchange, 200, res);
     }
     public void handleGetRatingHistory(HttpExchange exchange) throws SQLException, IOException {
-        List<RatingRequest> ratings = ratingService.findAllRatings(userID);
+        List<Rating> ratings = ratingService.findRatingsByUser(userID);
         if (ratings.isEmpty()) {
             HttpHelper.sendTextResponse(exchange, 200, "No ratings found");
+            return;
         }
         HttpHelper.sendJSONResponse(exchange, 200, ratings);
     }
