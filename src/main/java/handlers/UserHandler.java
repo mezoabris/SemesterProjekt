@@ -2,12 +2,16 @@ package handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import dataaccess.UserDAO;
 import datatransfer.*;
 import helpers.HttpHelper;
+import helpers.PasswordHasher;
 import helpers.TokenHelper;
 import models.MediaEntry;
+import models.Rating;
 import models.User;
 import service.AuthService;
+import service.MediaService;
 import service.RatingService;
 import service.UserService;
 
@@ -20,11 +24,13 @@ import java.util.Map;
 
 public class UserHandler implements HttpHandler {
     private int userID;
-    private final AuthService authService =  new AuthService();
-    UserService userService;
-    RatingService ratingService = new RatingService();
-    public UserHandler(UserService userService) {
 
+
+
+    private final UserService userService;
+    private final RatingService ratingService;
+    public UserHandler(UserService userService, RatingService ratingService) {
+        this.ratingService = ratingService;
         this.userService = userService;
     }
     @Override
@@ -117,31 +123,26 @@ public class UserHandler implements HttpHandler {
     private void handleGetProfile(HttpExchange exchange) throws SQLException, IOException {
 
 
-        User user = userService.findUserProfile(this.userID);
-        System.out.println("User found: " + (user != null));
+        UserResponse res = userService.findUserProfile(this.userID);
+        System.out.println("User found: " + (res.getUser() != null));
 
-        if (user == null) {
+        if (res.getUser() == null) {
             System.out.println("Sending 404");
             HttpHelper.sendTextResponse(exchange, 404, "User not found");
             return;
         }
 
         System.out.println("Sending user JSON");
-        HttpHelper.sendJSONResponse(exchange, 200, user);
+        HttpHelper.sendJSONResponse(exchange, 200, res);
     }
     public void handleGetRatingHistory(HttpExchange exchange) throws SQLException, IOException {
-        List<RatingRequest> ratings = ratingService.findAllRatings(userID);
+        List<Rating> ratings = ratingService.findRatingsByUser(userID);
         if (ratings.isEmpty()) {
             HttpHelper.sendTextResponse(exchange, 200, "No ratings found");
+            return;
         }
         HttpHelper.sendJSONResponse(exchange, 200, ratings);
     }
 
-        /*
-          TODO handleGetRatingHistory()
 
-          TODO handleGetFavorites()
-          TODO handleUpdateProfile()
-
-         */
 }

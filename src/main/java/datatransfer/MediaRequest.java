@@ -5,7 +5,11 @@ import java.util.List;
 
 public class MediaRequest {
     @Getter @Setter
-    String creator;
+    Integer mediaId;
+    @Getter @Setter
+    Integer creatorId;
+    @Getter @Setter
+    String creatorUsername; // For display purposes
     @Getter @Setter
     String title;
     @Getter @Setter
@@ -18,9 +22,11 @@ public class MediaRequest {
     List<String> genres;
     @Getter @Setter
     int ageRestriction;
+    @Getter @Setter
+    Double averageRating;
     public MediaRequest(){}
-    public MediaRequest(String creator,String title, String description, String mediaType, int releaseYear, List<String> genres, int ageRestriction) {
-        this.creator = creator;
+    public MediaRequest(Integer creatorId, String title, String description, String mediaType, int releaseYear, List<String> genres, int ageRestriction) {
+        this.creatorId = creatorId;
         this.title = title;
         this.description = description;
         this.mediaType = mediaType;

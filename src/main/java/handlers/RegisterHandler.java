@@ -2,7 +2,9 @@ package handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import dataaccess.UserDAO;
 import datatransfer.AuthRequest;
+import helpers.PasswordHasher;
 import service.AuthService;
 import helpers.HttpHelper;
 
@@ -10,7 +12,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 public class RegisterHandler implements HttpHandler {
-    private AuthService authService = new AuthService();
+    private final AuthService authService;
+    public RegisterHandler(AuthService authService){
+        this.authService = authService;
+    }
 
     @Override
     public void handle(HttpExchange httpExchange) throws RuntimeException, IOException {

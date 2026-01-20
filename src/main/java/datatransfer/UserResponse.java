@@ -10,6 +10,12 @@ import java.util.List;
 public class UserResponse {
     @Getter
     @Setter
+    private int totalRatings;
+    @Getter
+    @Setter
+    private double averageScore;
+    @Getter
+    @Setter
     private int status;
     @Getter
     @Setter
@@ -19,7 +25,7 @@ public class UserResponse {
     private String message;
     @Getter
     @Setter
-    private List<Rating> ratings;
+    private List<RatingRequest> ratings;
     @Getter
     @Setter
     private List<MediaRequest> favorites;
