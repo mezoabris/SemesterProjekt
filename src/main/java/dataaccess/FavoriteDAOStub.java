@@ -10,9 +10,7 @@ public class FavoriteDAOStub extends FavoriteDAO {
     private final Map<Integer, Set<Integer>> userFavorites = new HashMap<>();
 
     public FavoriteDAOStub() {
-        // User 1 has favorites: media 1, 2
         userFavorites.put(1, new HashSet<>(Arrays.asList(1, 2)));
-        // User 2 has favorite: media 1
         userFavorites.put(2, new HashSet<>(Arrays.asList(1)));
     }
 

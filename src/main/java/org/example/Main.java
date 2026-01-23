@@ -33,7 +33,7 @@ public class Main {
             ConnectionProvider connectionProvider = new DefaultConnectionProvider();
             GenreValidation validator = new GenreValidation();
             AuthService authService = new AuthService(hasher, userDAO, connectionProvider);
-            new TokenHelper(authService); // Initialize TokenHelper with authService
+            TokenHelper.initialize(authService);
 
             MediaService mediaService = new MediaService(mediaDAO, connectionProvider);
             UserService userService = new UserService(validator, userDAO, ratingDAO, connectionProvider);

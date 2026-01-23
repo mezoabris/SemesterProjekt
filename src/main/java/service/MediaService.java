@@ -172,7 +172,7 @@ public class MediaService {
         }
 
 
-        if (request.getReleaseYear() < 1888 || request.getReleaseYear() > LocalDate.now().getYear()) {
+        if (request.getReleaseYear() != null && (request.getReleaseYear() < 1888 || request.getReleaseYear() > LocalDate.now().getYear())) {
             throw new IllegalArgumentException("Invalid release year");
         }
 
@@ -182,7 +182,7 @@ public class MediaService {
         }
 
 
-        if (request.getAgeRestriction() < 0 || request.getAgeRestriction() > 21) {
+        if (request.getAgeRestriction() != null && (request.getAgeRestriction() < 0 || request.getAgeRestriction() > 21)) {
             throw new IllegalArgumentException("Invalid age restriction");
         }
 

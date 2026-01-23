@@ -4,7 +4,9 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import dataaccess.UserDAO;
 import datatransfer.AuthRequest;
+import datatransfer.AuthResponse;
 import helpers.PasswordHasher;
+import models.User;
 import service.AuthService;
 import helpers.HttpHelper;
 
@@ -26,12 +28,13 @@ public class RegisterHandler implements HttpHandler {
         }
         try {
             AuthRequest registerRequest = HttpHelper.parseRequestBody(httpExchange, AuthRequest.class);
-            String token = authService.register(registerRequest);
+            User user = authService.registerAndReturnUser(registerRequest);
 
-            if (token == null) {
+            if (user == null) {
                 HttpHelper.sendTextResponse(httpExchange, 400, "Registration failed");
             } else {
-                HttpHelper.sendTextResponse(httpExchange, 201, token);
+                AuthResponse response = new AuthResponse(user.getToken(), user.getUserID(), user.getUsername());
+                HttpHelper.sendJSONResponse(httpExchange, 201, response);
             }
 
         } catch (SQLException e) {

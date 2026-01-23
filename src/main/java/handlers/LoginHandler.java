@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import dataaccess.UserDAO;
 import datatransfer.AuthRequest;
+import datatransfer.AuthResponse;
 import helpers.HttpHelper;
 import helpers.PasswordHasher;
 import models.User;
@@ -36,7 +37,8 @@ public class LoginHandler implements HttpHandler {
                 HttpHelper.sendTextResponse(httpExchange, 400, "Invalid username or password");
                 return;
             }else{
-                HttpHelper.sendTextResponse(httpExchange, 200, user.getToken());
+                AuthResponse response = new AuthResponse(user.getToken(), user.getUserID(), user.getUsername());
+                HttpHelper.sendJSONResponse(httpExchange, 200, response);
             }
         } catch (SQLException e) {
             HttpHelper.sendTextResponse(httpExchange, 500, "Database error: " + e.getMessage());

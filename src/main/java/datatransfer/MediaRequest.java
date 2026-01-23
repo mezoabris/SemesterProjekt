@@ -17,15 +17,15 @@ public class MediaRequest {
     @Getter @Setter
     String mediaType;
     @Getter @Setter
-    int releaseYear;
+    Integer releaseYear;
     @Getter @Setter
     List<String> genres;
     @Getter @Setter
-    int ageRestriction;
+    Integer ageRestriction;
     @Getter @Setter
     Double averageRating;
     public MediaRequest(){}
-    public MediaRequest(Integer creatorId, String title, String description, String mediaType, int releaseYear, List<String> genres, int ageRestriction) {
+    public MediaRequest(Integer creatorId, String title, String description, String mediaType, Integer releaseYear, List<String> genres, Integer ageRestriction) {
         this.creatorId = creatorId;
         this.title = title;
         this.description = description;

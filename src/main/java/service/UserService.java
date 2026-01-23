@@ -96,8 +96,8 @@ public class UserService {
             conn.setAutoCommit(false);
 
             User curr = userDAO.findByUserID(conn, userID);
-            boolean nameDifference = !Objects.equals(curr.getUsername(), changes.getUsername());
-            boolean genreDifference = !Objects.equals(curr.getFavoriteGenre(), changes.getFavoritegenre());
+            boolean nameDifference = changes.getUsername() != null && !Objects.equals(curr.getUsername(), changes.getUsername());
+            boolean genreDifference = changes.getFavoritegenre() != null && !Objects.equals(curr.getFavoriteGenre(), changes.getFavoritegenre());
             if(!nameDifference && !genreDifference){
                 userResponse.setStatus(200);
                 userResponse.setMessage("You haven't made any changes");
@@ -105,7 +105,7 @@ public class UserService {
             if(genreDifference){
                 if(!validator.validateGenre(changes.getFavoritegenre())){
                     userResponse.setStatus(400);
-                    userResponse.setMessage("Please enter a valid genre");
+                    userResponse.setMessage("Please enter a valid genre. " + validator.getValidGenresMessage());
                     conn.rollback();
                     return userResponse;
                 }
