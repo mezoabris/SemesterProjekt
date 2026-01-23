@@ -34,7 +34,6 @@ public class RatingHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
         String method = exchange.getRequestMethod();
         String[] segments = path.split("/");
-        System.out.println(Arrays.toString(segments));
         String userAction = "";
         int ID = 0;
         // Parse: /api/ratings/{id} or /api/ratings/{id}/{action}
@@ -50,7 +49,6 @@ public class RatingHandler implements HttpHandler {
                 return;
             }
         }
-        System.out.println("Parsed - ID: " + ID + ", Action: " + userAction);
 
         User user = TokenHelper.requireValidToken(exchange);
         if(user == null) {
@@ -58,7 +56,6 @@ public class RatingHandler implements HttpHandler {
             return;
         }
         try{
-            System.out.println(method);
             switch (method) {
                 case "GET" -> handleGet(exchange, user);
                 case "POST", "PUT" -> handleWrite(exchange, user, userAction, ID);
@@ -75,10 +72,7 @@ public class RatingHandler implements HttpHandler {
     private void handleDel(HttpExchange exchange, User user, String userAction, int ID) throws IOException, SQLException{
         RatingResponse response = new RatingResponse();
         try{
-            System.out.println(userAction);
-            System.out.println("ID: " + ID);
-            System.out.println("user.getUserID(): "+ user.getUserID());
-            System.out.println(userAction);
+
             switch (userAction){
 
                 case "like" -> response = ratingLikeService.deleteLike(ID, user.getUsername());
@@ -94,7 +88,6 @@ public class RatingHandler implements HttpHandler {
     private void handleGet(HttpExchange exchange, User user) throws IOException, SQLException {
         String path = exchange.getRequestURI().getPath();
         String[] segments = path.split("/");
-        System.out.println("entering handleget");
 
         if(segments.length > 2) {
             int mediaID = Integer.parseInt(segments[segments.length - 1]);
@@ -106,7 +99,6 @@ public class RatingHandler implements HttpHandler {
 
     private void handleWrite(HttpExchange exchange, User user, String userAction, int ID) throws IOException {
 
-        System.out.println("Handling write");
         try{
             switch (userAction) {
                 case "rate"-> handleRate(exchange, ID, user);
@@ -133,11 +125,9 @@ public class RatingHandler implements HttpHandler {
     }
 
     private void handleRate(HttpExchange exchange, int mediaID, User user) throws IOException, SQLException {
-        System.out.println("Handling rating request");
 
        Rating ratingRequest = HttpHelper.parseRequestBody(exchange, Rating.class);
        ratingRequest.setMediaID(mediaID);
-       System.out.println("ratingRequest: " + ratingRequest);
        RatingResponse response = ratingService.saveRating(user.getUserID(), ratingRequest);
        HttpHelper.sendJSONResponse(exchange, response.getStatus(), response.getMessage());
     }

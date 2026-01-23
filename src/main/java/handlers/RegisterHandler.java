@@ -21,7 +21,6 @@ public class RegisterHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws RuntimeException, IOException {
-        System.out.println("Handler reached!");
         String method = httpExchange.getRequestMethod();
         if(!method.equals("POST")) {
             throw new RuntimeException("Method not supported");

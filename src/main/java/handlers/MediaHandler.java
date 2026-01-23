@@ -57,7 +57,6 @@ public class MediaHandler implements HttpHandler {
     }
 
     private void handleGet(HttpExchange exchange, String[] segments, Map<String, String> params) throws IOException, SQLException {
-        System.out.println(params);
         Integer mediaID = extractMediaIDFromPath(segments);
         MediaResponse response = mediaService.getMedia(mediaID, params);
         HttpHelper.sendJSONResponse(exchange, response.getStatus(), response);

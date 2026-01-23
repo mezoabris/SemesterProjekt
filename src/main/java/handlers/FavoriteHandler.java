@@ -27,9 +27,6 @@ public class FavoriteHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
         String[] segments = path.split("/");
 
-        System.out.println(Arrays.toString(segments));
-
-        System.out.println(method);
 
 
         try {

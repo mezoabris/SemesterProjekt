@@ -123,7 +123,6 @@ public class UserDAO {
 
     public void updateToken(Connection con, String username, String token) {
         String sql =  "UPDATE users SET token = ? WHERE username = ?";
-        System.out.println("usernamed ");
         try(PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, token);
             stmt.setString(2, username);

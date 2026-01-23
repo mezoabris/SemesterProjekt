@@ -49,7 +49,6 @@ public class Main {
             server.createContext("/api/users", new UserHandler(userService, ratingService));
             server.createContext("/api/media", new MediaHandler(mediaService));
             server.createContext("/api/favorites", new FavoriteHandler(favoriteService));
-            System.out.println("test");
 
             server.createContext("/api/ratings", new RatingHandler(ratingService, ratingLikeService));
             server.createContext("/api/recommendations", new RecommendationHandler(recommendationService));
