@@ -23,7 +23,12 @@ public class AuthService {
         this.connectionProvider = connectionProvider;
     }
     public String register(AuthRequest req) throws SQLException {
-        String token = null;
+        User user = registerAndReturnUser(req);
+        return user != null ? user.getToken() : null;
+    }
+
+    public User registerAndReturnUser(AuthRequest req) throws SQLException {
+        User createdUser = null;
         Connection conn = null;
         try{
             conn = connectionProvider.getConnection();
@@ -37,11 +42,11 @@ public class AuthService {
             newUser.setUsername(req.getUsername());
             newUser.setPassword(passwordHasher.hashPassword(req.getPassword()));
 
-            User createdUser =  userDAO.create(conn, newUser);
+            createdUser =  userDAO.create(conn, newUser);
             if(createdUser != null) {
-                token = TokenHelper.generateToken(createdUser.getUsername());
+                String token = TokenHelper.generateToken(createdUser.getUsername());
                 userDAO.updateToken(conn, createdUser.getUsername(), token);
-
+                createdUser.setToken(token);
             }
 
             conn.commit();
@@ -65,7 +70,7 @@ public class AuthService {
                 }
             }
         }
-        return token;
+        return createdUser;
     }
     public User login(AuthRequest req) throws SQLException {
         try(Connection conn = connectionProvider.getConnection()){

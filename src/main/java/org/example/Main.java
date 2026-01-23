@@ -33,7 +33,7 @@ public class Main {
             ConnectionProvider connectionProvider = new DefaultConnectionProvider();
             GenreValidation validator = new GenreValidation();
             AuthService authService = new AuthService(hasher, userDAO, connectionProvider);
-            new TokenHelper(authService); // Initialize TokenHelper with authService
+            TokenHelper.initialize(authService);
 
             MediaService mediaService = new MediaService(mediaDAO, connectionProvider);
             UserService userService = new UserService(validator, userDAO, ratingDAO, connectionProvider);
@@ -49,7 +49,6 @@ public class Main {
             server.createContext("/api/users", new UserHandler(userService, ratingService));
             server.createContext("/api/media", new MediaHandler(mediaService));
             server.createContext("/api/favorites", new FavoriteHandler(favoriteService));
-            System.out.println("test");
 
             server.createContext("/api/ratings", new RatingHandler(ratingService, ratingLikeService));
             server.createContext("/api/recommendations", new RecommendationHandler(recommendationService));

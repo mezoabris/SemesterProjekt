@@ -89,14 +89,25 @@ public class MediaDAO {
             }
         }
     }
-    public MediaResponse updateMedia(Connection con, int mediaID,MediaRequest media) throws SQLException {
-        String title= media.getTitle();
-        String description = media.getDescription();
-        String mediaType = media.getMediaType();
-        int releaseYear = media.getReleaseYear();
-        List<String> genre = media.getGenres();
-        int ageRestriction = media.getAgeRestriction();
+    public MediaResponse updateMedia(Connection con, int mediaID, MediaRequest media) throws SQLException {
         MediaResponse response = new MediaResponse();
+
+        // First, get the existing media to merge with updates
+        MediaRequest existing = findById(con, mediaID);
+        if (existing == null) {
+            response.setStatus(404);
+            response.setMessage("Media not found");
+            return response;
+        }
+
+        // Use provided values or fall back to existing ones
+        String title = media.getTitle() != null ? media.getTitle() : existing.getTitle();
+        String description = media.getDescription() != null ? media.getDescription() : existing.getDescription();
+        String mediaType = media.getMediaType() != null ? media.getMediaType() : existing.getMediaType();
+        Integer releaseYear = media.getReleaseYear() != null ? media.getReleaseYear() : existing.getReleaseYear();
+        List<String> genre = media.getGenres() != null && !media.getGenres().isEmpty() ? media.getGenres() : existing.getGenres();
+        Integer ageRestriction = media.getAgeRestriction() != null ? media.getAgeRestriction() : existing.getAgeRestriction();
+
         String sql = "UPDATE media_entries SET title = ?, description = ?, " +
                                              "media_type = ?, release_year = ?, " +
                                              "genre = ?, age_restriction = ?, " +
@@ -114,13 +125,11 @@ public class MediaDAO {
             if (affected > 0) {
                 response.setStatus(200);
                 response.setMessage("Successfully updated media");
-            }else{
+            } else {
                 response.setStatus(500);
                 response.setMessage("Failed to update media");
             }
             return response;
-
-
         }
     }
     public MediaResponse deleteMedia(Connection con, int mediaID){

@@ -47,7 +47,7 @@ class UserServiceTest {
         UserResponse res = userService.editProfile(1, editedUser);
 
         assertEquals(400, res.getStatus());
-        assertEquals("Please enter a valid genre", res.getMessage());
+        assertTrue(res.getMessage().contains("Please enter a valid genre"));
     }
 
     @Test

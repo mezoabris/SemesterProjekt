@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public class TokenHelper {
     private static AuthService authService;
-    public TokenHelper(AuthService authService){
+    public static void initialize(AuthService authService) {
         TokenHelper.authService = authService;
     }
 

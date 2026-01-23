@@ -1,0 +1,677 @@
+{
+	"info": {
+		"_postman_id": "49b9671d-e2b9-4e30-a4e2-e93daadb136a",
+		"name": "Media Ratings Platform (MRP)",
+		"description": "Complete API collection for the Media Ratings Platform",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48429121",
+		"_collection_link": "https://abris-mezo-168255.postman.co/workspace/Mez%C5%91-%C3%81bris's-Workspace~0354919a-dd2f-47ea-8579-e363f37b8a01/collection/48429121-49b9671d-e2b9-4e30-a4e2-e93daadb136a?action=share&source=collection_link&creator=48429121"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"testpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"testpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "Get User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User Profile (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testUserheyho\",\n  \"favoritegenre\": \"sci-fi\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}",
+								"profile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Rating History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}/ratings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}",
+								"ratings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Favorites",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/users/{{userId}}/favorites",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}",
+								"favorites"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Media",
+			"item": [
+				{
+					"name": "Get All Media",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/media",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Media (Filter by Title)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/media?title=Matrix",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "Matrix"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Media by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/media/{{mediaId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{mediaId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Media",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"The Matrix\",\n  \"type\": \"Movie\",\n  \"genre\": \"Action\",\n  \"ageRestriction\": 16,\n  \"description\": \"A computer hacker learns from mysterious rebels about the true nature of his reality.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/media",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Media",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"The Matrix Reloaded\",\n  \"type\": \"Movie\",\n  \"genre\": \"Action\",\n  \"ageRestriction\": 16,\n  \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/media/{{mediaId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{mediaId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Media",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/media/{{mediaId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"media",
+								"{{mediaId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ratings",
+			"item": [
+				{
+					"name": "Get All Ratings for Media",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{mediaId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{mediaId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create/Update Rating",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"score\": 5,\n  \"comment\": \"Excellent movie!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{mediaId}}/rate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{mediaId}}",
+								"rate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rating (PUT)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"score\": 4,\n  \"comment\": \"Updated review - still great!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{mediaId}}/rate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{mediaId}}",
+								"rate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Rating",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{ratingId}}/rate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{ratingId}}",
+								"rate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Like Rating",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{ratingId}}/like",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{ratingId}}",
+								"like"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unlike Rating",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{ratingId}}/like",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{ratingId}}",
+								"like"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Approve Rating Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/ratings/{{ratingId}}/approve",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"ratings",
+								"{{ratingId}}",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Favorites",
+			"item": [
+				{
+					"name": "Get All Favorites",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/favorites",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"favorites"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add to Favorites",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/favorites/{{mediaId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"favorites",
+								"{{mediaId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove from Favorites",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/favorites/{{mediaId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"favorites",
+								"{{mediaId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Recommendations & Leaderboard",
+			"item": [
+				{
+					"name": "Get Recommendations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/recommendations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"recommendations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Leaderboard",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/leaderboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"leaderboard"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "mediaId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "ratingId",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}

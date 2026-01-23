@@ -38,7 +38,6 @@ public class UserHandler implements HttpHandler {
         String path = exchange.getRequestURI().getPath();
 
         String method = exchange.getRequestMethod();
-        System.out.println("Method: " + method);
         String[] segments =path.split("/");
 
         String userAction = segments[segments.length - 1];
@@ -85,7 +84,6 @@ public class UserHandler implements HttpHandler {
     }
 
     private void handleGetFavorites(HttpExchange exchange) {
-        System.out.println("Getting favorites");
         FavoritesRequest favorites = new FavoritesRequest();
         try{
 
@@ -105,9 +103,9 @@ public class UserHandler implements HttpHandler {
     }
 
     private void handleWrite(HttpExchange exchange, User user, String[] segments) throws IOException {
-        System.out.println("Writing profile");
+
         UserProfile profileChanges = HttpHelper.parseRequestBody(exchange, UserProfile.class);
-        System.out.println("Profile changes: " + profileChanges);
+
         try{
             UserResponse userResponse = userService.editProfile(this.userID,profileChanges);
             HttpHelper.sendJSONResponse(exchange,  userResponse.getStatus(), userResponse.getMessage());
@@ -132,7 +130,6 @@ public class UserHandler implements HttpHandler {
             return;
         }
 
-        System.out.println("Sending user JSON");
         HttpHelper.sendJSONResponse(exchange, 200, res);
     }
     public void handleGetRatingHistory(HttpExchange exchange) throws SQLException, IOException {

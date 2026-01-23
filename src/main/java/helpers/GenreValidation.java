@@ -10,4 +10,8 @@ public class GenreValidation {
     public boolean validateGenre(String genre){
         return VALID_GENRES.contains(genre);
     }
+
+    public String getValidGenresMessage(){
+        return "Valid genres are: " + String.join(", ", VALID_GENRES);
+    }
 }

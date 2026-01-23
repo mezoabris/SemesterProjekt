@@ -41,7 +41,6 @@ public class RatingService {
     }
 
     public RatingResponse saveRating(int userID, Rating ratingRequest) throws SQLException {
-        System.out.println("rating service reached");
         try(Connection con = connectionProvider.getConnection()){
             con.setAutoCommit(false); // Start transaction
 
