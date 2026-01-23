@@ -29,7 +29,7 @@ class MediaServiceTest {
 
     @Test
     void testCreateMedia_success() {
-        MediaRequest newMedia = new MediaRequest(1, "The Matrix", "Hacker discovers reality", "movie", 1999, Arrays.asList("sci-fi", "action"), 16);
+        MediaRequest newMedia = new MediaRequest(1, "The Matrix", "Hacker discovers reality", "movie", Integer.valueOf(1999), Arrays.asList("sci-fi", "action"), Integer.valueOf(16));
         newMedia.setCreatorUsername("test1");
 
         MediaResponse response = mediaService.createMedia(newMedia);
@@ -68,7 +68,7 @@ class MediaServiceTest {
 
     @Test
     void testUpdateMedia_success() throws SQLException {
-        MediaRequest updatedMedia = new MediaRequest(1, "Inception Updated", "Updated description", "movie", 2010, List.of("sci-fi"), 13);
+        MediaRequest updatedMedia = new MediaRequest(1, "Inception Updated", "Updated description", "movie", Integer.valueOf(2010), List.of("sci-fi"), Integer.valueOf(13));
         updatedMedia.setCreatorUsername("test1");
 
         MediaResponse response = mediaService.updateMediaByID(1, updatedMedia, "test1");
@@ -79,7 +79,7 @@ class MediaServiceTest {
 
     @Test
     void testUpdateMedia_notFound() throws SQLException {
-        MediaRequest updatedMedia = new MediaRequest(1, "Test", "Test", "movie", 2020, List.of("drama"), 12);
+        MediaRequest updatedMedia = new MediaRequest(1, "Test", "Test", "movie", Integer.valueOf(2020), List.of("drama"), Integer.valueOf(12));
 
         MediaResponse response = mediaService.updateMediaByID(999, updatedMedia, "test1");
 
